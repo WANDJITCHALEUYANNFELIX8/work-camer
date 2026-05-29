@@ -76,11 +76,21 @@ function showToast(message, type = 'success') {
 }
 
 // Mettre à jour la barre de navigation
+function handleCommencer(e) {
+  if (!getUser()) {
+    e.preventDefault();
+    window.location.href = '/auth.html?mode=register';
+  }
+}
+
 function updateNavbar() {
   const user = getUser();
   const navLinks = document.getElementById('nav-links');
 
   if (!navLinks) return;
+
+  const currentPath = window.location.pathname;
+  const isActive = (path) => currentPath === path || (path === '/index.html' && currentPath === '/') ? 'active-link' : '';
 
   if (user) {
     // Badge CNI
@@ -94,9 +104,9 @@ function updateNavbar() {
     }
 
     navLinks.innerHTML = `
-      <li><a href="/index.html" class="nav-link">Accueil Portal</a></li>
-      <li><a href="/dashboard.html" class="nav-link">Tableau de bord</a></li>
-      <li><a href="/chat.html" class="nav-link">Discussions</a></li>
+      <li><a href="/index.html" class="nav-link ${isActive('/index.html')}">Accueil Portal</a></li>
+      <li><a href="/dashboard.html" class="nav-link ${isActive('/dashboard.html')}">Tableau de bord</a></li>
+      <li><a href="/chat.html" class="nav-link ${isActive('/chat.html')}">Discussions</a></li>
       <li>
         <button onclick="void(0)" style="background:none;border:none;cursor:pointer;color:var(--secondary);position:relative;padding:4px" title="Notifications">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
@@ -110,8 +120,8 @@ function updateNavbar() {
     `;
   } else {
     navLinks.innerHTML = `
-      <li><a href="/index.html" class="nav-link">Accueil Portal</a></li>
-      <li><a href="/recherche.html" class="nav-link">Commencer</a></li>
+      <li><a href="/index.html" class="nav-link ${isActive('/index.html')}">Accueil Portal</a></li>
+      <li><a href="/auth.html?mode=register" class="nav-link ${isActive('/auth.html')}">Commencer</a></li>
       <li><a href="/auth.html" class="btn btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.85rem">Connexion</a></li>
       <li><a href="/auth.html?mode=register" class="btn btn-primary" style="padding:0.4rem 0.9rem;font-size:0.85rem">S'inscrire</a></li>
     `;
