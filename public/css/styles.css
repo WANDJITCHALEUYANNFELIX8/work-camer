@@ -436,3 +436,35 @@ tr:hover td { background: rgba(255,255,255,0.01); }
 .status-pill.pending { background: rgba(234,179,8,0.15); color: var(--secondary); }
 .status-pill.accepted { background: rgba(34,197,94,0.15); color: var(--primary); }
 .status-pill.rejected { background: rgba(239,68,68,0.15); color: var(--danger); }
+/* PORTAL STYLES */
+.job-details-modal { display: flex; flex-direction: column; gap: 1.25rem; }
+.job-details-modal h3 { font-size: 1.8rem; font-weight: 800; }
+.modal-budget { color: var(--primary); font-size: 1.5rem; font-weight: 800; }
+.modal-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-glass); border-bottom: 1px solid var(--border-glass); padding: 1rem 0; }
+.meta-item { display: flex; flex-direction: column; }
+.meta-item span:first-child { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+.meta-item span:last-child { font-size: 0.95rem; font-weight: 600; }
+.portal-hero { text-align: center; padding: 4rem 1rem 2rem; background: radial-gradient(circle at center, rgba(34,197,94,0.1) 0%, transparent 70%); }
+.portal-greeting-box h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.portal-role-badge { display: inline-block; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); padding: 0.3rem 1rem; border-radius: 50px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-secondary); margin-bottom: 1rem; }
+.portal-container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+.stat-card { display: flex; align-items: center; gap: 1.25rem; padding: 1.5rem; }
+.stat-icon { font-size: 2.5rem; }
+.stat-details h3 { font-size: 2rem; color: var(--primary); margin: 0; }
+.stat-details p { color: var(--text-secondary); margin: 0; font-size: 0.9rem; font-weight: 600; }
+.portal-main-area { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+@media (min-width: 900px) { .portal-main-area { grid-template-columns: 2fr 1fr; } }
+.portal-left { display: flex; flex-direction: column; gap: 2rem; }
+.action-box { padding: 1.5rem; }
+.action-buttons-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem; }
+@media (min-width: 600px) { .action-buttons-grid { grid-template-columns: 1fr 1fr; } }
+.notification-box { padding: 1.5rem; }
+.box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.75rem; }
+.box-actions { font-size: 0.85rem; display: flex; gap: 0.5rem; }
+.action-link { cursor: pointer; color: var(--secondary); font-weight: 600; transition: var(--transition); }
+.action-link:hover { color: var(--primary); }
+.text-danger { color: #ef4444; }
+.text-danger:hover { color: #dc2626; }
+.mini-chat-box { padding: 1.5rem; height: 100%; display: flex; flex-direction: column; }
+.mini-chat-list { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; }
