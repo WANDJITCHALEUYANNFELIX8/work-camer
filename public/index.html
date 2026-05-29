@@ -1,256 +1,558 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Recherche d'Emplois & Micro-missions de Confiance au Cameroun - WorkCamer</title>
-  <link rel="stylesheet" href="/css/styles.css">
-  <style>
-    /* Styling to support SVG icons */
-    .metier-icon-svg {
-      width: 40px;
-      height: 40px;
-      margin: 0 auto 0.75rem;
-      display: block;
-      color: var(--primary);
-      transition: var(--transition);
-    }
-    .metier-card:hover .metier-icon-svg {
-      transform: scale(1.1);
-      color: var(--secondary);
-    }
-    .feature-icon-svg {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 1.25rem;
-      color: var(--primary);
-      display: block;
-    }
-    
-    /* Interactive pulse elements */
-    .pulse-dot-cni {
-      width: 10px;
-      height: 10px;
-      background: var(--primary);
-      border-radius: 50%;
-      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-      animation: pulse 1.8s infinite;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    @keyframes pulse {
-      0% {
-        transform: scale(0.95);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emplois & Micro-missions de Confiance au Cameroun - WorkCamer</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+      .metier-icon-svg {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 0.75rem;
+        display: block;
+        color: var(--primary);
+        transition: var(--transition);
+      }
+
+      .metier-card:hover .metier-icon-svg {
+        transform: scale(1.1);
+        color: var(--secondary);
+      }
+
+      .feature-icon-svg {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 1.25rem;
+        color: var(--primary);
+        display: block;
+      }
+
+      .pulse-dot-cni {
+        width: 10px;
+        height: 10px;
+        background: var(--primary);
+        border-radius: 50%;
         box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        animation: pulse 1.8s infinite;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 6px;
       }
-      70% {
-        transform: scale(1);
-        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+
+      @keyframes pulse {
+        0% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        }
+
+        70% {
+          transform: scale(1);
+          box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+        }
+
+        100% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+        }
       }
-      100% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-      }
-    }
+    </style>
+  </head>
 
-    /* Multiple particles customization */
-    .particle {
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.12;
-      animation: float linear infinite;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Navbar -->
-  <nav class="navbar">
-    <a href="/index.html" class="logo">
-      WorkCamer <span class="logo-star">★</span>
-    </a>
-    <ul class="nav-links" id="nav-links">
-      <!-- Rempli par common.js -->
-    </ul>
-  </nav>
-
-  <!-- Hero Presentation Section -->
-  <section class="landing-hero">
-    <div class="particles">
-      <!-- Increased number of bubbles with staggered properties -->
-      <div class="particle" style="width: 8px; height: 8px; left: 8%; animation-duration: 11s; animation-delay: 0s; background: var(--primary);"></div>
-      <div class="particle" style="width: 14px; height: 14px; left: 22%; animation-duration: 15s; animation-delay: 2s; background: var(--secondary);"></div>
-      <div class="particle" style="width: 6px; height: 6px; left: 35%; animation-duration: 9s; animation-delay: 1s; background: var(--primary);"></div>
-      <div class="particle" style="width: 12px; height: 12px; left: 48%; animation-duration: 17s; animation-delay: 4s; background: var(--danger);"></div>
-      <div class="particle" style="width: 8px; height: 8px; left: 58%; animation-duration: 13s; animation-delay: 0.5s; background: var(--secondary);"></div>
-      <div class="particle" style="width: 16px; height: 16px; left: 72%; animation-duration: 20s; animation-delay: 3s; background: var(--primary);"></div>
-      <div class="particle" style="width: 10px; height: 10px; left: 85%; animation-duration: 14s; animation-delay: 1.5s; background: var(--danger);"></div>
-      <div class="particle" style="width: 7px; height: 7px; left: 93%; animation-duration: 10s; animation-delay: 5s; background: var(--secondary);"></div>
-      <div class="particle" style="width: 12px; height: 12px; left: 15%; animation-duration: 18s; animation-delay: 6s; background: var(--primary);"></div>
-      <div class="particle" style="width: 9px; height: 9px; left: 63%; animation-duration: 12s; animation-delay: 7s; background: var(--secondary);"></div>
-      <div class="particle" style="width: 15px; height: 15px; left: 40%; animation-duration: 22s; animation-delay: 8s; background: var(--danger);"></div>
-      <div class="particle" style="width: 6px; height: 6px; left: 80%; animation-duration: 8s; animation-delay: 3.5s; background: var(--primary);"></div>
+  <body>
+    <!-- PAGE LOADER -->
+    <div class="page-loader" id="page-loader">
+      <div class="loader-ring"></div>
+      <div class="loader-text">WorkCamer</div>
+      <div class="loader-sub">Chargement de la plateforme...</div>
     </div>
-    
-    <div class="hero-content">
-      <div class="hero-badge">
-        <span class="pulse-dot-cni"></span> Sécurisé à 100% par carte d'identité & biométrie
+
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="/index.html" class="logo"
+        >WorkCamer <span class="logo-star">&#9733;</span></a
+      >
+      <ul class="nav-links" id="nav-links"></ul>
+    </nav>
+
+    <!-- Hero -->
+    <section class="landing-hero">
+      <div class="particles">
+        <div
+          class="particle"
+          style="
+            width: 8px;
+            height: 8px;
+            left: 8%;
+            animation-duration: 11s;
+            background: var(--primary);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 14px;
+            height: 14px;
+            left: 22%;
+            animation-duration: 15s;
+            animation-delay: 2s;
+            background: var(--secondary);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 6px;
+            height: 6px;
+            left: 35%;
+            animation-duration: 9s;
+            animation-delay: 1s;
+            background: var(--primary);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 12px;
+            height: 12px;
+            left: 48%;
+            animation-duration: 17s;
+            animation-delay: 4s;
+            background: var(--danger);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 8px;
+            height: 8px;
+            left: 58%;
+            animation-duration: 13s;
+            animation-delay: 0.5s;
+            background: var(--secondary);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 16px;
+            height: 16px;
+            left: 72%;
+            animation-duration: 20s;
+            animation-delay: 3s;
+            background: var(--primary);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 10px;
+            height: 10px;
+            left: 85%;
+            animation-duration: 14s;
+            animation-delay: 1.5s;
+            background: var(--danger);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 7px;
+            height: 7px;
+            left: 93%;
+            animation-duration: 10s;
+            animation-delay: 5s;
+            background: var(--secondary);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 12px;
+            height: 12px;
+            left: 15%;
+            animation-duration: 18s;
+            animation-delay: 6s;
+            background: var(--primary);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 9px;
+            height: 9px;
+            left: 63%;
+            animation-duration: 12s;
+            animation-delay: 7s;
+            background: var(--secondary);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 15px;
+            height: 15px;
+            left: 40%;
+            animation-duration: 22s;
+            animation-delay: 8s;
+            background: var(--danger);
+          "
+        ></div>
+        <div
+          class="particle"
+          style="
+            width: 6px;
+            height: 6px;
+            left: 80%;
+            animation-duration: 8s;
+            animation-delay: 3.5s;
+            background: var(--primary);
+          "
+        ></div>
       </div>
-      <h1 class="hero-title">
-        Trouvez des <span class="gradient-text">Micro-Missions</span> et <span class="gradient-text">Emplois de Confiance</span> au Cameroun
-      </h1>
-      <p class="hero-subtitle">
-        La première plateforme camerounaise de mise en relation de proximité, fiabilisée par contrôle d'identité OCR de la CNI et géolocalisation en temps réel.
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="pulse-dot-cni"></span> Plateforme sécurisée par CNI &
+          biométrie
+        </div>
+        <h1 class="hero-title">
+          Trouvez des <span class="gradient-text">Micro-Missions</span> et
+          <span class="gradient-text">Emplois de Confiance</span> au Cameroun
+        </h1>
+        <p class="hero-subtitle">
+          La première plateforme camerounaise de mise en relation de proximité,
+          fiabilisée par contrôle d'identité OCR de la CNI et géolocalisation en
+          temps réel.
+        </p>
+        <div class="hero-buttons">
+          <a href="/recherche.html" class="btn btn-primary btn-lg">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="margin-right: 6px"
+            >
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Commencer
+          </a>
+          <a href="/auth.html?mode=register" class="btn btn-secondary btn-lg">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="margin-right: 6px"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Rejoindre la plateforme
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-number">1 500+</div>
+            <div class="hero-stat-label">Missions Publiées</div>
+          </div>
+          <div
+            class="hero-stat"
+            style="
+              border-left: 1px solid var(--border-glass);
+              border-right: 1px solid var(--border-glass);
+              padding: 0 2.5rem;
+            "
+          >
+            <div class="hero-stat-number" style="color: var(--secondary)">
+              99%
+            </div>
+            <div class="hero-stat-label">Profils CNI Vérifiés</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-number" style="color: var(--danger)">0%</div>
+            <div class="hero-stat-label">Faux Profils Tolérés</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Métiers -->
+    <section class="section" style="border-top: 1px solid var(--border-glass)">
+      <div class="section-header">
+        <span class="section-label">Opportunités</span>
+        <h2 class="section-title">Métiers Disponibles</h2>
+        <p class="section-subtitle">
+          Découvrez les domaines les plus demandés et filtrez les offres en un
+          clic.
+        </p>
+      </div>
+      <div class="metiers-grid">
+        <div class="metier-card" onclick="selectMetier('Informatique & Dev')">
+          <svg
+            class="metier-icon-svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          <h4>Informatique & Dev</h4>
+          <span>Développeur, Web, Design...</span>
+        </div>
+        <div class="metier-card" onclick="selectMetier('Bâtiment & BTP')">
+          <svg
+            class="metier-icon-svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+            ></path>
+          </svg>
+          <h4>Bâtiment & BTP</h4>
+          <span>Électricien, Plombier, Maçon...</span>
+        </div>
+        <div
+          class="metier-card"
+          onclick="selectMetier('Enseignement & Soutien')"
+        >
+          <svg
+            class="metier-icon-svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path
+              d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+            ></path>
+          </svg>
+          <h4>Enseignement</h4>
+          <span>Répétiteur, Langues, Cours...</span>
+        </div>
+        <div class="metier-card" onclick="selectMetier('Ménage & Services')">
+          <svg
+            class="metier-icon-svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <h4>Ménage & Services</h4>
+          <span>Nounou, Nettoyage, Repassage...</span>
+        </div>
+        <div
+          class="metier-card"
+          onclick="selectMetier('Transport & Logistique')"
+        >
+          <svg
+            class="metier-icon-svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+          <h4>Transport</h4>
+          <span>Chauffeur, Livreur, Courses...</span>
+        </div>
+        <div
+          class="metier-card"
+          onclick="selectMetier('Restauration & Cuisine')"
+        >
+          <svg
+            class="metier-icon-svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+            <line x1="6" y1="1" x2="6" y2="4"></line>
+            <line x1="10" y1="1" x2="10" y2="4"></line>
+            <line x1="14" y1="1" x2="14" y2="4"></line>
+          </svg>
+          <h4>Cuisine & Resto</h4>
+          <span>Cuisinier, Traiteur, Serveur...</span>
+        </div>
+        <div class="metier-card" onclick="selectMetier('Commerce & Vente')">
+          <svg
+            class="metier-icon-svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <h4>Commerce & Vente</h4>
+          <span>Promoteur, Vendeur, Hôtesse...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sécurité -->
+    <section class="section" style="border-top: 1px solid var(--border-glass)">
+      <div class="section-header">
+        <span class="section-label">Sécurité Maximale</span>
+        <h2 class="section-title">Comment WorkCamer vous protège</h2>
+        <p class="section-subtitle">
+          Technologies de pointe pour éradiquer les arnaques et garantir la
+          confiance.
+        </p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <svg
+            class="feature-icon-svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect>
+            <line x1="7" y1="8" x2="17" y2="8"></line>
+            <line x1="7" y1="12" x2="17" y2="12"></line>
+            <line x1="7" y1="16" x2="13" y2="16"></line>
+          </svg>
+          <h3>Contrôle d'identité OCR CNI</h3>
+          <p>
+            Chaque utilisateur scanne sa CNI. Notre IA extrait automatiquement
+            les données officielles et vérifie l'authenticité de la pièce.
+          </p>
+        </div>
+        <div class="feature-card">
+          <svg
+            class="feature-icon-svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+            ></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          <h3>Comparaison Biométrique Faciale</h3>
+          <p>
+            Un selfie en temps réel est comparé à la photo CNI pour s'assurer
+            que le propriétaire du compte est bien la personne légitime.
+          </p>
+        </div>
+        <div class="feature-card">
+          <svg
+            class="feature-icon-svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <h3>Géolocalisation de Proximité</h3>
+          <p>
+            Trouvez des tâches et prestataires proches de votre quartier. Tout
+            se fait localement et intelligemment.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <h2>Besoin de faire faire un travail ou de gagner de l'argent ?</h2>
+      <p>
+        Inscrivez-vous gratuitement, validez votre CNI en 2 minutes et commencez
+        en toute sécurité.
       </p>
-      
-      <div class="hero-buttons">
-        <a href="/recherche.html" class="btn btn-primary btn-lg">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-          Commencer
-        </a>
-        <a href="/auth.html?mode=register" class="btn btn-secondary btn-lg">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-          Rejoindre la plateforme
-        </a>
+      <div
+        style="
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        "
+      >
+        <a href="/auth.html?mode=register" class="btn btn-primary btn-lg"
+          >S'inscrire gratuitement</a
+        >
+        <a href="/auth.html" class="btn btn-secondary btn-lg">Connexion</a>
       </div>
-      
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <div class="hero-stat-number">1 500+</div>
-          <div class="hero-stat-label">Missions Publiées</div>
-        </div>
-        <div class="hero-stat" style="border-left: 1px solid var(--border-glass); border-right: 1px solid var(--border-glass); padding: 0 2.5rem;">
-          <div class="hero-stat-number" style="color: var(--secondary);">99%</div>
-          <div class="hero-stat-label">Profils CNI Vérifiés</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-number" style="color: var(--danger);">0%</div>
-          <div class="hero-stat-label">Faux Profils Tolérés</div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Métiers Disponibles Section -->
-  <section class="section" style="border-top: 1px solid var(--border-glass); position: relative;">
-    <div class="section-header">
-      <span class="section-label">Opportunités</span>
-      <h2 class="section-title">Métiers Disponibles</h2>
-      <p class="section-subtitle">Découvrez les domaines d'activité les plus demandés à proximité et filtrez les offres en un clic.</p>
-    </div>
-    
-    <div class="metiers-grid">
-      <div class="metier-card" onclick="selectMetier('Informatique & Dev')">
-        <!-- SVG Computer -->
-        <svg class="metier-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-        <h4>Informatique & Dev</h4>
-        <span>Développeur, Web, Design...</span>
+    <!-- Footer -->
+    <footer class="landing-footer">
+      <div class="footer-links">
+        <a href="/index.html">Accueil</a>
+        <a href="/recherche.html">Rechercher</a>
+        <a href="/auth.html">Mon Compte</a>
+        <a href="/chat.html">Messages</a>
       </div>
-      
-      <div class="metier-card" onclick="selectMetier('Bâtiment & BTP')">
-        <!-- SVG Tool/Hammer -->
-        <svg class="metier-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-        <h4>Bâtiment & BTP</h4>
-        <span>Électricien, Plombier, Maçon...</span>
-      </div>
-      
-      <div class="metier-card" onclick="selectMetier('Enseignement & Soutien')">
-        <!-- SVG Book -->
-        <svg class="metier-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-        <h4>Enseignement</h4>
-        <span>Répétiteur, Langues, Cours...</span>
-      </div>
-      
-      <div class="metier-card" onclick="selectMetier('Ménage & Services')">
-        <!-- SVG Home/Broom -->
-        <svg class="metier-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        <h4>Ménage & Services</h4>
-        <span>Nounou, Nettoyage, Repassage...</span>
-      </div>
-      
-      <div class="metier-card" onclick="selectMetier('Transport & Logistique')">
-        <!-- SVG Truck -->
-        <svg class="metier-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-        <h4>Transport</h4>
-        <span>Chauffeur, Livreur, Courses...</span>
-      </div>
-      
-      <div class="metier-card" onclick="selectMetier('Restauration & Cuisine')">
-        <!-- SVG Coffee/Feather -->
-        <svg class="metier-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
-        <h4>Cuisine & Resto</h4>
-        <span>Cuisinier, Traiteur, Serveur...</span>
-      </div>
-      
-      <div class="metier-card" onclick="selectMetier('Commerce & Vente')">
-        <!-- SVG Shopping Bag -->
-        <svg class="metier-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-        <h4>Commerce & Vente</h4>
-        <span>Promoteur, Vendeur, Hôtesse...</span>
-      </div>
-    </div>
-  </section>
+      <p>&copy; 2026 WorkCamer. Tous droits réservés.</p>
+    </footer>
 
-  <!-- Confiance & Sécurité Section -->
-  <section class="section" style="border-top: 1px solid var(--border-glass);">
-    <div class="section-header">
-      <span class="section-label">Sécurité Maximale</span>
-      <h2 class="section-title">Comment WorkCamer vous protège</h2>
-      <p class="section-subtitle">Nous utilisons les dernières innovations technologiques pour éradiquer les arnaques et garantir un environnement de confiance.</p>
-    </div>
-    
-    <div class="features-grid">
-      <div class="feature-card">
-        <!-- SVG ID Card -->
-        <svg class="feature-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="7" y1="16" x2="13" y2="16"></line></svg>
-        <h3>Contrôle d'identité OCR CNI</h3>
-        <p>Lors de l'inscription, chaque utilisateur doit scanner sa CNI. Notre intelligence artificielle extrait automatiquement les données officielles et vérifie l'authenticité de la pièce.</p>
-      </div>
-      
-      <div class="feature-card">
-        <!-- SVG Camera -->
-        <svg class="feature-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-        <h3>Comparaison Biométrique faciale</h3>
-        <p>Un selfie de contrôle en temps réel est comparé à la photo d'identité de la CNI pour s'assurer que la personne derrière le compte est bien la propriétaire légitime de la carte.</p>
-      </div>
-      
-      <div class="feature-card">
-        <!-- SVG Map Pin -->
-        <svg class="feature-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-        <h3>Géolocalisation de Proximité</h3>
-        <p>Recherchez des tâches ou des prestataires proches de votre quartier actuel. Finies les longues distances et les frais inutiles, tout se fait localement et intelligemment.</p>
-      </div>
-    </div>
-  </section>
+    <script src="/js/common.js"></script>
+    <script>
+      // Page loader
+      window.addEventListener("load", () => {
+        setTimeout(
+          () => document.getElementById("page-loader").classList.add("hidden"),
+          600,
+        );
+      });
 
-  <!-- CTA Banner Section -->
-  <section class="cta-section">
-    <h2>Besoin de faire faire un travail ou de gagner de l'argent ?</h2>
-    <p>Inscrivez-vous gratuitement dès aujourd'hui, validez votre CNI en 2 minutes et commencez à publier des missions ou à y postuler en toute sécurité.</p>
-    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-      <a href="/auth.html?mode=register" class="btn btn-primary btn-lg">S'inscrire gratuitement</a>
-      <a href="/auth.html" class="btn btn-secondary btn-lg">Connexion</a>
-    </div>
-  </section>
-
-  <!-- Footer Section -->
-  <footer class="landing-footer">
-    <div class="footer-links">
-      <a href="/index.html">Accueil</a>
-      <a href="/recherche.html">Rechercher des offres</a>
-      <a href="/auth.html">Mon Compte</a>
-      <a href="/chat.html">Messages</a>
-    </div>
-    <p>© 2026 WorkCamer. Tous droits réservés. Développé pour un Cameroun numérique de confiance.</p>
-  </footer>
-
-  <script src="/js/common.js"></script>
-  <script>
-    // Redirige vers la page recherche.html en passant le domaine en paramètre URL
-    function selectMetier(domaineName) {
-      window.location.href = `/recherche.html?domaine=${encodeURIComponent(domaineName)}`;
-    }
-  </script>
-</body>
+      function selectMetier(d) {
+        window.location.href = `/recherche.html?domaine=${encodeURIComponent(d)}`;
+      }
+    </script>
+  </body>
 </html>

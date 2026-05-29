@@ -385,6 +385,39 @@ tr:hover td { background: rgba(255,255,255,0.01); }
   100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
 }
 
+/* ===== PAGE LOADER ===== */
+.page-loader {
+  position: fixed; inset: 0; z-index: 99999;
+  background: var(--bg-primary);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+.page-loader.hidden {
+  opacity: 0; visibility: hidden; pointer-events: none;
+}
+.loader-ring {
+  width: 56px; height: 56px;
+  border: 3px solid var(--border-glass);
+  border-top-color: var(--primary);
+  border-right-color: var(--secondary);
+  border-radius: 50%;
+  animation: loader-spin 0.9s linear infinite;
+}
+@keyframes loader-spin { to { transform: rotate(360deg); } }
+.loader-text {
+  margin-top: 1.5rem;
+  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--danger) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  animation: fadeInUp 0.5s ease both;
+}
+.loader-sub {
+  margin-top: 0.5rem;
+  font-size: 0.85rem; color: var(--text-muted);
+  animation: fadeInUp 0.5s ease 0.2s both;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .hero-title { font-size: 2.2rem; }

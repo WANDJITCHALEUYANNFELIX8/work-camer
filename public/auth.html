@@ -3,162 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Authentification Sécurisée & Biométrie - WorkCamer</title>
+  <title>Authentification - WorkCamer</title>
   <link rel="stylesheet" href="/css/styles.css">
   <style>
-    .auth-wrapper {
-      max-width: 550px;
-      margin: 3rem auto;
-      padding: 0 1rem;
-    }
-    .auth-card {
-      padding: 2.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .auth-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border-glass);
-      margin-bottom: 2rem;
-      gap: 1rem;
-    }
-    .auth-tab {
-      flex: 1;
-      padding: 0.75rem;
-      text-align: center;
-      cursor: pointer;
-      color: var(--text-secondary);
-      font-weight: 600;
-      transition: var(--transition);
-      border-bottom: 2px solid transparent;
-    }
-    .auth-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-      text-shadow: 0 0 8px var(--primary-glow);
-    }
-    
-    /* Intelligent Geolocation Container styling */
-    .geoloc-assist-box {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-glass);
-      border-radius: var(--radius-md);
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-    .geoloc-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-    }
-    
-    /* Pulsing satellite signal simulator */
-    .gps-pulse-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      margin-bottom: 0.75rem;
-    }
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
-      background-color: var(--secondary);
-      border-radius: 50%;
-      position: relative;
-    }
-    .pulse-dot::after {
-      content: '';
-      width: 100%;
-      height: 100%;
-      background-color: inherit;
-      border-radius: 50%;
-      position: absolute;
-      animation: pulse-ring 1.2s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
-    }
-    @keyframes pulse-ring {
-      0% { transform: scale(0.5); opacity: 1; }
-      100% { transform: scale(2.5); opacity: 0; }
-    }
-    
-    /* Biometric step verification style improvements */
-    .step-log {
-      margin-top: 1.5rem;
-      padding: 1.25rem;
-      background: rgba(11, 15, 25, 0.9);
-      border-radius: var(--radius-md);
-      font-family: monospace;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      display: none;
-      flex-direction: column;
-      gap: 8px;
-      border: 1px solid var(--border-glass);
-      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
-    }
-    .step-log-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: var(--transition);
-    }
-    .step-log-item.active {
-      color: var(--secondary);
-    }
-    .step-log-item.done {
-      color: var(--primary);
-    }
-    
-    /* Input layout decoration */
-    .input-icon-group {
-      position: relative;
-    }
-    .input-icon-group .input-icon-svg {
-      position: absolute;
-      left: 1rem;
-      top: 0.85rem;
-      color: var(--text-muted);
-      width: 16px;
-      height: 16px;
-    }
-    .input-icon-group .form-control {
-      padding-left: 2.75rem;
-    }
+    .auth-wrapper { max-width:550px; margin:2rem auto; padding:0 1rem; }
+    .auth-card { padding:2.5rem; position:relative; overflow:hidden; }
+    .auth-tabs { display:flex; border-bottom:1px solid var(--border-glass); margin-bottom:2rem; gap:1rem; }
+    .auth-tab { flex:1; padding:0.75rem; text-align:center; cursor:pointer; color:var(--text-secondary); font-weight:600; transition:var(--transition); border-bottom:2px solid transparent; }
+    .auth-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+    .geoloc-assist-box { background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1.5rem; }
+    .geoloc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; }
+    .gps-pulse-container { display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.75rem; }
+    .pulse-dot { width:8px; height:8px; background-color:var(--secondary); border-radius:50%; position:relative; }
+    .pulse-dot::after { content:''; width:100%; height:100%; background-color:inherit; border-radius:50%; position:absolute; animation:pulse-ring 1.2s cubic-bezier(0.215,0.61,0.355,1) infinite; }
+    @keyframes pulse-ring { 0%{transform:scale(0.5);opacity:1} 100%{transform:scale(2.5);opacity:0} }
+    .step-log { margin-top:1.5rem; padding:1.25rem; background:rgba(11,15,25,0.9); border-radius:var(--radius-md); font-family:monospace; font-size:0.85rem; color:var(--text-secondary); display:none; flex-direction:column; gap:8px; border:1px solid var(--border-glass); }
+    .step-log-item { display:flex; align-items:center; gap:8px; transition:var(--transition); }
+    .step-log-item.active { color:var(--secondary); }
+    .step-log-item.done { color:var(--primary); }
+    .input-icon-group { position:relative; }
+    .input-icon-group .input-icon-svg { position:absolute; left:1rem; top:0.85rem; color:var(--text-muted); width:16px; height:16px; }
+    .input-icon-group .form-control { padding-left:2.75rem; }
+    #map-container { width:100%; height:220px; border-radius:var(--radius-md); border:1px solid var(--border-glass); overflow:hidden; margin-bottom:1rem; }
+    .coord-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:0.75rem; }
+    .coord-row input:disabled { opacity:0.6; cursor:not-allowed; background:rgba(255,255,255,0.02); }
   </style>
 </head>
 <body>
 
-  <!-- Navbar -->
+  <!-- PAGE LOADER -->
+  <div class="page-loader" id="page-loader">
+    <div class="loader-ring"></div>
+    <div class="loader-text">WorkCamer</div>
+    <div class="loader-sub">Chargement...</div>
+  </div>
+
   <nav class="navbar">
-    <a href="/index.html" class="logo">
-      WorkCamer <span class="logo-star">★</span>
-    </a>
-    <ul class="nav-links" id="nav-links">
-      <!-- Rempli par common.js -->
-    </ul>
+    <a href="/index.html" class="logo">WorkCamer <span class="logo-star">&#9733;</span></a>
+    <ul class="nav-links" id="nav-links"></ul>
   </nav>
 
   <div class="auth-wrapper">
     <div class="glass-panel auth-card">
-      
-      <!-- Selector Tabs -->
+
       <div class="auth-tabs" id="auth-selector-tabs">
         <div class="auth-tab active" id="tab-login" onclick="toggleMode('login')">Connexion</div>
         <div class="auth-tab" id="tab-register" onclick="toggleMode('register')">Créer un compte</div>
       </div>
 
-      <!-- ÉCRAN CONNEXION -->
+      <!-- CONNEXION -->
       <div id="login-container">
-        <h2 class="auth-title" style="text-align: left; margin-bottom: 0.25rem;">Bienvenue à nouveau !</h2>
-        <p class="auth-subtitle" style="text-align: left; margin-bottom: 2rem;">Accédez en toute sécurité à vos offres et micro-services.</p>
-        
+        <h2 class="auth-title" style="text-align:left;margin-bottom:0.25rem">Bienvenue !</h2>
+        <p class="auth-subtitle" style="text-align:left;margin-bottom:2rem">Accédez à vos offres et micro-services en toute sécurité.</p>
         <form id="login-form">
           <div class="form-group">
             <label for="login-email">Adresse Email</label>
             <div class="input-icon-group">
-              <!-- SVG Mail -->
               <svg class="input-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
               <input type="email" id="login-email" class="form-control" placeholder="exemple@mail.cm" required>
             </div>
@@ -166,29 +66,23 @@
           <div class="form-group">
             <label for="login-password">Mot de passe</label>
             <div class="input-icon-group">
-              <!-- SVG Lock -->
               <svg class="input-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+              <input type="password" id="login-password" class="form-control" placeholder="Votre mot de passe" required>
             </div>
           </div>
-          
-          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; height: 3rem;">
-            Se connecter
-          </button>
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1.5rem;height:3rem">Se connecter</button>
         </form>
       </div>
 
-      <!-- ÉCRAN INSCRIPTION -->
-      <div id="register-container" style="display: none;">
-        <h2 class="auth-title" style="text-align: left; margin-bottom: 0.25rem;">Création de compte</h2>
-        <p class="auth-subtitle" style="text-align: left; margin-bottom: 2rem;">Rejoignez la plateforme leader des services sécurisés.</p>
-        
+      <!-- INSCRIPTION -->
+      <div id="register-container" style="display:none">
+        <h2 class="auth-title" style="text-align:left;margin-bottom:0.25rem">Création de compte</h2>
+        <p class="auth-subtitle" style="text-align:left;margin-bottom:2rem">Rejoignez la plateforme leader des services sécurisés.</p>
         <form id="register-form">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
             <div class="form-group">
-              <label for="reg-nom">Nom de famille</label>
+              <label for="reg-nom">Nom</label>
               <div class="input-icon-group">
-                <!-- SVG User -->
                 <svg class="input-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle></svg>
                 <input type="text" id="reg-nom" class="form-control" placeholder="Fouda" required>
               </div>
@@ -196,166 +90,136 @@
             <div class="form-group">
               <label for="reg-prenom">Prénom</label>
               <div class="input-icon-group">
-                <!-- SVG User -->
                 <svg class="input-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle></svg>
                 <input type="text" id="reg-prenom" class="form-control" placeholder="Jean" required>
               </div>
             </div>
           </div>
-
           <div class="form-group">
             <label for="reg-email">Adresse Email</label>
             <div class="input-icon-group">
-              <!-- SVG Mail -->
               <svg class="input-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
               <input type="email" id="reg-email" class="form-control" placeholder="jean.fouda@mail.cm" required>
             </div>
           </div>
-
           <div class="form-group">
-            <label for="reg-tel">Numéro de téléphone</label>
+            <label for="reg-tel">Téléphone</label>
             <div class="input-icon-group">
-              <!-- SVG Phone -->
               <svg class="input-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
               <input type="tel" id="reg-tel" class="form-control" placeholder="+237 6xx xx xx xx" required>
             </div>
           </div>
-
           <div class="form-group">
             <label for="reg-type">Type de profil</label>
             <div class="input-icon-group">
-              <!-- SVG Briefcase -->
               <svg class="input-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-              <select id="reg-type" class="form-control" style="padding-left: 2.75rem;" required>
-                <option value="Candidat">Candidat (Recherche d'emploi / Micro-missions)</option>
-                <option value="Recruteur">Recruteur / Entreprise (Publication d'offres)</option>
-                <option value="Particulier">Particulier (Besoin d'un service ponctuel)</option>
+              <select id="reg-type" class="form-control" style="padding-left:2.75rem" required>
+                <option value="Candidat">Candidat (Recherche d'emploi)</option>
+                <option value="Recruteur">Recruteur / Entreprise</option>
+                <option value="Particulier">Particulier (Service ponctuel)</option>
               </select>
             </div>
           </div>
 
-          <!-- GÉOLOCALISATION INTELLIGENTE ASSISTÉE -->
+          <!-- GÉOLOCALISATION GOOGLE MAPS -->
           <div class="geoloc-assist-box">
             <div class="geoloc-header">
-              <label style="font-size: 0.9rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                <span>Géolocalisation Intelligente</span>
+              <label style="font-size:0.9rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:6px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary)"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                Géolocalisation Intelligente
               </label>
-              <button type="button" id="btn-detect-gps" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; height: auto;" onclick="detectGeolocation()">
+              <button type="button" id="btn-detect-gps" class="btn btn-secondary" style="padding:0.4rem 0.8rem;font-size:0.8rem;height:auto" onclick="detectGeolocation()">
                 Détecter ma position
               </button>
             </div>
-            
-            <div id="gps-status" class="gps-pulse-container" style="display: none;">
+            <div id="gps-status" class="gps-pulse-container" style="display:none">
               <span class="pulse-dot"></span>
-              <span id="gps-status-text">Recherche de signal GPS...</span>
+              <span id="gps-status-text">Recherche GPS...</span>
             </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="reg-ville" style="font-size: 0.8rem;">Ville</label>
+            <!-- Google Maps Embed -->
+            <div id="map-container">
+              <iframe id="gmap-iframe" width="100%" height="220" frameborder="0" style="border:0;filter:invert(90%) hue-rotate(180deg)" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=4.0511,9.7679&zoom=13">
+              </iframe>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+              <div class="form-group" style="margin-bottom:0">
+                <label for="reg-ville" style="font-size:0.8rem">Ville</label>
                 <input type="text" id="reg-ville" class="form-control" placeholder="Douala" required>
               </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="reg-quartier" style="font-size: 0.8rem;">Quartier</label>
+              <div class="form-group" style="margin-bottom:0">
+                <label for="reg-quartier" style="font-size:0.8rem">Quartier</label>
                 <input type="text" id="reg-quartier" class="form-control" placeholder="Akwa" required>
               </div>
             </div>
-
-            <!-- Coordonnées cachées mais présentes pour la soumission -->
-            <input type="hidden" id="reg-lat" value="4.0511">
-            <input type="hidden" id="reg-lng" value="9.7679">
+            <!-- Coordonnées visibles mais disabled -->
+            <div class="coord-row">
+              <div class="form-group" style="margin-bottom:0">
+                <label style="font-size:0.75rem;color:var(--text-muted)">Latitude</label>
+                <input type="text" id="reg-lat" class="form-control" value="4.0511" disabled>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label style="font-size:0.75rem;color:var(--text-muted)">Longitude</label>
+                <input type="text" id="reg-lng" class="form-control" value="9.7679" disabled>
+              </div>
+            </div>
           </div>
 
           <div class="form-group">
             <label for="reg-password">Mot de passe</label>
             <div class="input-icon-group">
-              <!-- SVG Lock -->
               <svg class="input-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
               <input type="password" id="reg-password" class="form-control" placeholder="Min. 6 caractères" required minlength="6">
             </div>
           </div>
-
-          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; height: 3rem;">
-            Créer mon compte
-          </button>
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1.5rem;height:3rem">Créer mon compte</button>
         </form>
       </div>
 
-      <!-- ÉCRAN VÉRIFICATION CNI BIOMÉTRIQUE -->
-      <div id="cni-verification-container" style="display: none;">
+      <!-- VÉRIFICATION CNI -->
+      <div id="cni-verification-container" style="display:none">
         <h2 class="auth-title">Vérification de Sécurité</h2>
         <p class="auth-subtitle">Conformément aux normes DGSN, validez vos pièces pour publier ou postuler.</p>
-        
         <div class="form-group">
-          <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">1. Photo de votre CNI (Recto/Verso)</label>
+          <label style="font-weight:600;margin-bottom:0.5rem;display:block">1. Photo de votre CNI (Recto/Verso)</label>
           <div id="cni-box" class="scanner-box" onclick="triggerUpload('cni-file')">
             <div class="scanner-laser"></div>
-            <div class="scanner-placeholder" style="text-align: center; padding: 1rem;">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary); margin: 0 auto 0.5rem; display: block;"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="7" y1="16" x2="13" y2="16"></line></svg>
-              <span style="font-weight: 500; font-size: 0.9rem;">Cliquez pour uploader la CNI</span>
-              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Format PNG, JPG ou JPEG</p>
+            <div class="scanner-placeholder" style="text-align:center;padding:1rem">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);margin:0 auto 0.5rem;display:block"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="7" y1="16" x2="13" y2="16"></line></svg>
+              <span style="font-weight:500;font-size:0.9rem">Cliquez pour uploader la CNI</span>
             </div>
             <img id="cni-preview" alt="Aperçu CNI">
           </div>
-          <input type="file" id="cni-file" style="display: none;" accept="image/*" onchange="previewImage(this, 'cni')">
+          <input type="file" id="cni-file" style="display:none" accept="image/*" onchange="previewImage(this,'cni')">
         </div>
-
-        <div class="form-group" style="margin-top: 1.5rem;">
-          <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">2. Selfie Instantané de Contrôle</label>
+        <div class="form-group" style="margin-top:1.5rem">
+          <label style="font-weight:600;margin-bottom:0.5rem;display:block">2. Selfie Instantané de Contrôle</label>
           <div id="selfie-box" class="scanner-box" onclick="triggerUpload('selfie-file')">
             <div class="scanner-laser"></div>
-            <div class="scanner-placeholder" style="text-align: center; padding: 1rem;">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary); margin: 0 auto 0.5rem; display: block;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-              <span style="font-weight: 500; font-size: 0.9rem;">Cliquez pour charger le Selfie</span>
-              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Votre visage bien éclairé</p>
+            <div class="scanner-placeholder" style="text-align:center;padding:1rem">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);margin:0 auto 0.5rem;display:block"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <span style="font-weight:500;font-size:0.9rem">Cliquez pour charger le Selfie</span>
             </div>
             <img id="selfie-preview" alt="Aperçu Selfie">
           </div>
-          <input type="file" id="selfie-file" style="display: none;" accept="image/*" onchange="previewImage(this, 'selfie')">
+          <input type="file" id="selfie-file" style="display:none" accept="image/*" onchange="previewImage(this,'selfie')">
         </div>
-
-        <button id="btn-start-verify" onclick="startBiometricVerification()" class="btn btn-primary" style="width: 100%; margin-top: 2rem; height: 3rem;">
-          Démarrer l'analyse d'identité
-        </button>
-
-        <!-- Dynamic execution console logs -->
+        <button id="btn-start-verify" onclick="startBiometricVerification()" class="btn btn-primary" style="width:100%;margin-top:2rem;height:3rem">Démarrer l'analyse d'identité</button>
         <div id="step-logs" class="step-log">
-          <div id="log-1" class="step-log-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Connexion sécurisée aux serveurs DGSN Cameroun...</div>
-          <div id="log-2" class="step-log-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Lancement de l'OCR CNI...</div>
-          <div id="log-3" class="step-log-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Vérification de sécurité (hologrammes)...</div>
-          <div id="log-4" class="step-log-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Calcul biométrique des repères faciaux...</div>
-          <div id="log-5" class="step-log-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Analyse finale et calcul de similarité...</div>
+          <div id="log-1" class="step-log-item">&#9881; Connexion sécurisée aux serveurs DGSN Cameroun...</div>
+          <div id="log-2" class="step-log-item">&#9881; Lancement de l'OCR CNI...</div>
+          <div id="log-3" class="step-log-item">&#9881; Vérification de sécurité (hologrammes)...</div>
+          <div id="log-4" class="step-log-item">&#9881; Calcul biométrique des repères faciaux...</div>
+          <div id="log-5" class="step-log-item">&#9881; Analyse finale et calcul de similarité...</div>
         </div>
-
-        <!-- Simulated Results -->
         <div id="verify-results" class="simulated-results">
-          <h4 style="display: flex; align-items: center; gap: 8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            IDENTITÉ VÉRIFIÉE À 100%
-          </h4>
-          <div class="result-row" style="margin-top: 0.75rem;">
-            <span>Numéro de CNI extrait :</span>
-            <span id="res-cni">...</span>
-          </div>
-          <div class="result-row">
-            <span>Nom extrait de la carte :</span>
-            <span id="res-nom">...</span>
-          </div>
-          <div class="result-row">
-            <span>Correspondance faciale :</span>
-            <span id="res-score" style="color: var(--primary);">...</span>
-          </div>
-          <div class="result-row">
-            <span>Statut DGSN :</span>
-            <span style="color: var(--primary); font-weight: bold;">VERIFIED</span>
-          </div>
-          
-          <button onclick="finishVerificationFlow()" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; background: var(--primary); height: 3rem;">
-            Accéder à la plateforme
-          </button>
+          <h4>IDENTITÉ VÉRIFIÉE À 100%</h4>
+          <div class="result-row" style="margin-top:0.75rem"><span>Numéro de CNI extrait :</span><span id="res-cni">...</span></div>
+          <div class="result-row"><span>Nom extrait de la carte :</span><span id="res-nom">...</span></div>
+          <div class="result-row"><span>Correspondance faciale :</span><span id="res-score" style="color:var(--primary)">...</span></div>
+          <div class="result-row"><span>Statut DGSN :</span><span style="color:var(--primary);font-weight:bold">VERIFIED</span></div>
+          <button onclick="finishVerificationFlow()" class="btn btn-primary" style="width:100%;margin-top:1.5rem;height:3rem">Accéder à la plateforme</button>
         </div>
-
       </div>
 
     </div>
@@ -364,87 +228,69 @@
   <script src="/js/common.js"></script>
   <script src="/js/auth.js"></script>
   <script>
-    // Logique de géolocalisation hybride intelligente (réelle + simulation)
+    window.addEventListener('load', () => {
+      setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 400);
+    });
+
     function detectGeolocation() {
       const statusDiv = document.getElementById('gps-status');
       const statusText = document.getElementById('gps-status-text');
       const btn = document.getElementById('btn-detect-gps');
-      
       btn.disabled = true;
       statusDiv.style.display = 'flex';
-      statusText.innerText = 'Interrogation du capteur GPS interne...';
-      
+      statusText.innerText = 'Interrogation du capteur GPS...';
+
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            
-            document.getElementById('reg-lat').value = lat;
-            document.getElementById('reg-lng').value = lng;
-            
-            statusText.innerText = `Coordonnées reçues (${lat.toFixed(4)}, ${lng.toFixed(4)}). Recherche de l'adresse...`;
-            
+          async (pos) => {
+            const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            document.getElementById('reg-lat').value = lat.toFixed(6);
+            document.getElementById('reg-lng').value = lng.toFixed(6);
+            // Update Google Maps iframe
+            document.getElementById('gmap-iframe').src =
+              `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${lat},${lng}&zoom=16`;
+            statusText.innerText = `Coordonnées reçues (${lat.toFixed(4)}, ${lng.toFixed(4)})...`;
             try {
-              // Requête de reverse geocoding gratuite via OpenStreetMap Nominatim
-              const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
-              const data = await response.json();
-              
-              if (data && data.address) {
-                const ville = data.address.city || data.address.town || data.address.village || 'Douala';
-                const quartier = data.address.suburb || data.address.neighbourhood || data.address.quarter || 'Akwa';
-                
-                document.getElementById('reg-ville').value = ville;
-                document.getElementById('reg-quartier').value = quartier;
-                statusText.innerHTML = '<span style="color: var(--primary);">✅ Position GPS synchronisée en temps réel !</span>';
-                showToast('Géolocalisation réussie !', 'success');
-              } else {
-                throw new Error('OSM Reverse Geocoding vide');
+              const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+              const d = await r.json();
+              if (d && d.address) {
+                document.getElementById('reg-ville').value = d.address.city || d.address.town || d.address.village || 'Douala';
+                document.getElementById('reg-quartier').value = d.address.suburb || d.address.neighbourhood || d.address.quarter || 'Akwa';
               }
-            } catch (err) {
-              // Si Nominatim échoue, on remplit par défaut avec des valeurs camerounaises cohérentes
+            } catch(e) {
               document.getElementById('reg-ville').value = 'Douala';
               document.getElementById('reg-quartier').value = 'Akwa';
-              statusText.innerHTML = `<span style="color: var(--primary);">✅ Position GPS fixée (${lat.toFixed(4)}, ${lng.toFixed(4)}) !</span>`;
-              showToast('Coordonnées GPS capturées.', 'success');
             }
+            statusText.innerHTML = '<span style="color:var(--primary)">Position GPS synchronisée !</span>';
             btn.disabled = false;
+            showToast('Géolocalisation réussie !', 'success');
           },
-          (error) => {
-            // Fallback en cas de refus d'accès GPS de l'utilisateur ou erreur capteur
-            statusText.innerText = 'Pas d\'accès GPS direct. Lancement de la triangulation Orange/MTN...';
-            
+          () => {
+            statusText.innerText = 'GPS refusé. Triangulation réseau...';
             setTimeout(() => {
-              statusText.innerText = 'Triangulation du relais local (+/- 12 mètres)...';
-              
-              setTimeout(() => {
-                const locations = [
-                  { ville: 'Douala', quartier: 'Akwa', lat: 4.0511, lng: 9.7679 },
-                  { ville: 'Douala', quartier: 'Bonapriso', lat: 4.0322, lng: 9.7022 },
-                  { ville: 'Douala', quartier: 'Deido', lat: 4.0620, lng: 9.7110 },
-                  { ville: 'Yaoundé', quartier: 'Bastos', lat: 3.8890, lng: 11.5015 },
-                  { ville: 'Yaoundé', quartier: 'Mvan', lat: 3.8290, lng: 11.5190 },
-                  { ville: 'Bafoussam', quartier: 'Tamda', lat: 5.4780, lng: 10.4180 },
-                  { ville: 'Buea', quartier: 'Molyko', lat: 4.1560, lng: 9.2410 }
-                ];
-                
-                const selection = locations[Math.floor(Math.random() * locations.length)];
-                
-                document.getElementById('reg-ville').value = selection.ville;
-                document.getElementById('reg-quartier').value = selection.quartier;
-                document.getElementById('reg-lat').value = selection.lat;
-                document.getElementById('reg-lng').value = selection.lng;
-                
-                statusText.innerHTML = '<span style="color: var(--primary);">✅ Triangulation MTN/Orange réussie (Simulé) !</span>';
-                btn.disabled = false;
-                showToast('Position simulée avec succès !', 'success');
-              }, 1200);
-            }, 1000);
+              const locs = [
+                {ville:'Douala',quartier:'Akwa',lat:4.0511,lng:9.7679},
+                {ville:'Douala',quartier:'Bonapriso',lat:4.0322,lng:9.7022},
+                {ville:'Yaoundé',quartier:'Bastos',lat:3.8890,lng:11.5015},
+                {ville:'Bafoussam',quartier:'Tamda',lat:5.4780,lng:10.4180},
+                {ville:'Buea',quartier:'Molyko',lat:4.1560,lng:9.2410}
+              ];
+              const s = locs[Math.floor(Math.random()*locs.length)];
+              document.getElementById('reg-ville').value = s.ville;
+              document.getElementById('reg-quartier').value = s.quartier;
+              document.getElementById('reg-lat').value = s.lat;
+              document.getElementById('reg-lng').value = s.lng;
+              document.getElementById('gmap-iframe').src =
+                `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${s.lat},${s.lng}&zoom=15`;
+              statusText.innerHTML = '<span style="color:var(--primary)">Triangulation réussie !</span>';
+              btn.disabled = false;
+              showToast('Position simulée !', 'success');
+            }, 1500);
           },
-          { enableHighAccuracy: true, timeout: 5000 }
+          {enableHighAccuracy:true, timeout:5000}
         );
       } else {
-        statusText.innerText = 'GPS non supporté par le navigateur.';
+        statusText.innerText = 'GPS non supporté.';
         btn.disabled = false;
       }
     }
