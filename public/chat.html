@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messagerie Sécurisée - WorkCamer</title>
+  <!-- Chargement du CDN Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Configuration de Tailwind (Optionnel pour couleur sombre premium) -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brandGreen: '#22c55e',
+            brandGold: '#eab308',
+            brandRed: '#ef4444',
+            bgDark: '#0b0f19',
+            cardDark: '#131b2e',
+            borderDark: 'rgba(255,255,255,0.08)'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-[#0b0f19] text-slate-100 font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/index.html" class="logo text-xl">
+      WorkCamer <span class="logo-star">★</span>
+    </a>
+    <ul class="nav-links flex items-center space-x-6 list-none" id="nav-links">
+      <!-- Rempli par common.js -->
+    </ul>
+  </nav>
+
+  <!-- Container de Chat Principal -->
+  <div class="flex-grow flex max-w-7xl w-full mx-auto my-6 px-4 md:px-6 h-[calc(100vh-140px)]">
+    <div class="w-full flex rounded-2xl overflow-hidden border border-white/10 bg-[#131b2e]/70 backdrop-blur-md shadow-2xl">
+      
+      <!-- PANNEAU DES DISCUSSIONS ACTIVES (GAUCHE) -->
+      <div class="w-80 border-r border-white/10 flex flex-col bg-[#0f1524]">
+        <div class="p-4 border-b border-white/10">
+          <h2 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            💬 Discussions
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">Échanges sécurisés par géolocalisation</p>
+        </div>
+        
+        <!-- Liste de conversations -->
+        <div class="flex-1 overflow-y-auto" id="chat-list-container">
+          <!-- Rempli dynamiquement par chat.js -->
+          <div class="p-4 text-center text-sm text-slate-500">
+            Aucune discussion active.
+          </div>
+        </div>
+      </div>
+
+      <!-- ESPACE DE CHAT (DROITE) -->
+      <div class="flex-1 flex flex-col bg-[#131b2e]/30">
+        
+        <!-- En-tête du Chat Courant -->
+        <div class="h-16 border-b border-white/10 px-6 flex items-center justify-between" id="chat-header" style="display: none;">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center font-bold text-green-400 text-sm" id="chat-contact-avatar">
+              U
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-slate-100" id="chat-contact-name">Nom Prénom</span>
+                <span id="chat-contact-cni-badge"></span>
+              </div>
+              <p class="text-xs text-slate-400" id="chat-contact-meta">Téléphone • Localisation</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20" id="chat-contact-role">
+              Candidat
+            </span>
+          </div>
+        </div>
+
+        <!-- Corps des Messages -->
+        <div class="flex-grow overflow-y-auto p-6 space-y-4 flex flex-col justify-end" id="chat-messages-container">
+          <!-- Message de bienvenue par défaut s'il n'y a pas de discussion active -->
+          <div class="my-auto text-center max-w-sm mx-auto space-y-3" id="welcome-message-block">
+            <div class="text-5xl">💬</div>
+            <h3 class="text-lg font-bold text-white">Vos messages en temps réel</h3>
+            <p class="text-xs text-slate-400">
+              Sélectionnez une discussion à gauche ou initiez un chat depuis le tableau de bord pour entamer un échange avec un recruteur ou un postulant vérifié.
+            </p>
+          </div>
+        </div>
+
+        <!-- Indicateur de Saisie (Typing Indicator) -->
+        <div class="px-6 py-2 text-xs text-slate-400 italic" id="typing-indicator" style="display: none;">
+          Quelqu'un écrit...
+        </div>
+
+        <!-- Pied de page / Zone de Saisie -->
+        <div class="p-4 border-t border-white/10 bg-[#0f1524]/60" id="chat-input-bar" style="display: none;">
+          <form id="chat-send-form" class="flex items-center space-x-3">
+            <input type="text" id="chat-input-text" class="flex-grow bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all text-sm" placeholder="Saisissez votre message sécurisé..." autocomplete="off" oninput="sendTypingEvent()">
+            <button type="submit" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold text-sm rounded-xl px-5 py-3 shadow-lg shadow-green-500/20 transition-all hover:-translate-y-0.5">
+              Envoyer
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/chat.js"></script>
+</body>
+</html>

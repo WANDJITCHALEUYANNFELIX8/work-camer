@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau de bord - WorkCamer</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    .applicant-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .applicant-card .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .applicant-card .motivation {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      background: rgba(0, 0, 0, 0.1);
+      padding: 0.75rem;
+      border-radius: 6px;
+      border-left: 2px solid var(--primary);
+    }
+    .applicant-card .actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .status-pill {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .status-pill.pending { background: rgba(234, 179, 8, 0.15); color: var(--secondary); }
+    .status-pill.accepted { background: rgba(34, 197, 94, 0.15); color: var(--primary); }
+    .status-pill.rejected { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/index.html" class="logo">
+      WorkCamer <span class="logo-star">★</span>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <!-- Rempli par common.js -->
+    </ul>
+  </nav>
+
+  <div class="dashboard-container">
+    <h2 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2rem;">Tableau de bord</h2>
+
+    <div class="dashboard-grid">
+      
+      <!-- MENU DE NAVIGATION SIDEBAR -->
+      <aside>
+        <ul class="sidebar-menu" id="dashboard-menu">
+          <!-- Injecté dynamiquement selon le rôle de l'utilisateur -->
+        </ul>
+      </aside>
+
+      <!-- PANNEAU DE CONTENU PRINCIPAL -->
+      <main class="glass-panel" style="padding: 2rem; min-height: 500px;">
+        
+        <!-- SECTION 1 : PUBLIER UNE OFFRE -->
+        <section id="section-publish" style="display: none;">
+          <h3 style="margin-bottom: 1.5rem;">Publier une nouvelle offre</h3>
+          
+          <form id="create-job-form">
+            <div class="form-group">
+              <label for="job-title">Titre de la mission</label>
+              <input type="text" id="job-title" class="form-control" placeholder="Ex: Recherche électricien pour câblage maison" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label for="job-type">Type de contrat</label>
+                <select id="job-type" class="form-control" required>
+                  <option value="Micro-mission">Micro-mission (Quelques heures / jours)</option>
+                  <option value="Court terme">Court terme (Moins de 3 mois)</option>
+                  <option value="Long terme">Long terme (Plus de 3 mois)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="job-domaine">Domaine d'activité</label>
+                <select id="job-domaine" class="form-control" required>
+                  <option value="Informatique & Dev">Informatique & Dev</option>
+                  <option value="Enseignement & Soutien">Enseignement & Soutien</option>
+                  <option value="Bâtiment & BTP">Bâtiment & BTP</option>
+                  <option value="Commerce & Vente">Commerce & Vente</option>
+                  <option value="Ménage & Services">Ménage & Services</option>
+                  <option value="Transport & Logistique">Transport & Logistique</option>
+                  <option value="Restauration & Cuisine">Restauration & Cuisine</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="job-budget">Budget proposé (en Francs CFA - XAF)</label>
+              <input type="number" id="job-budget" class="form-control" placeholder="Ex: 45000" required>
+            </div>
+
+            <div class="form-group">
+              <label for="job-desc">Description de la tâche et pré-requis</label>
+              <textarea id="job-desc" class="form-control" rows="6" placeholder="Décrivez le travail à réaliser en détail..." required></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label for="job-ville">Ville</label>
+                <input type="text" id="job-ville" class="form-control" placeholder="Douala" required>
+              </div>
+              <div class="form-group">
+                <label for="job-quartier">Quartier</label>
+                <input type="text" id="job-quartier" class="form-control" placeholder="Bonapriso" required>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label for="job-lat">Latitude GPS (Optionnel)</label>
+                <input type="number" step="any" id="job-lat" class="form-control" placeholder="Ex: 4.05">
+              </div>
+              <div class="form-group">
+                <label for="job-lng">Longitude GPS (Optionnel)</label>
+                <input type="number" step="any" id="job-lng" class="form-control" placeholder="Ex: 9.76">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+              Publier l'offre
+            </button>
+          </form>
+        </section>
+
+        <!-- SECTION 2 : LISTE DES OFFRES RECRUTEUR -->
+        <section id="section-my-offers" style="display: none;">
+          <h3 style="margin-bottom: 1.5rem;">Mes offres publiées</h3>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Offre</th>
+                  <th>Budget</th>
+                  <th>Type</th>
+                  <th>Date</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="my-offers-tbody">
+                <!-- Rempli dynamiquement -->
+              </tbody>
+            </table>
+          </div>
+          <div id="no-offers-msg" style="display: none; text-align: center; padding: 2rem; color: var(--text-secondary);">
+            Vous n'avez pas encore publié d'offres d'emploi.
+          </div>
+        </section>
+
+        <!-- SECTION 3 : LISTE DES CANDIDATURES CANDIDAT -->
+        <section id="section-my-submissions" style="display: none;">
+          <h3 style="margin-bottom: 1.5rem;">Mes candidatures envoyées</h3>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mission</th>
+                  <th>Recruteur</th>
+                  <th>Contact</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="my-submissions-tbody">
+                <!-- Rempli dynamiquement -->
+              </tbody>
+            </table>
+          </div>
+          <div id="no-submissions-msg" style="display: none; text-align: center; padding: 2rem; color: var(--text-secondary);">
+            Vous n'avez pas encore postulé à des offres.
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- DRAWER DES CANDIDATS (PANNEAU LATÉRAL) -->
+  <div id="applicants-drawer" class="drawer">
+    <div class="drawer-header">
+      <h3 id="drawer-title" style="font-size: 1.4rem; font-weight: 800;">Postulants</h3>
+      <button onclick="closeDrawer()" style="background: transparent; border: none; font-size: 1.8rem; color: var(--text-secondary); cursor: pointer;">
+        &times;
+      </button>
+    </div>
+    
+    <div id="drawer-content" style="flex-grow: 1; overflow-y: auto; padding-right: 5px;">
+      <!-- Liste des candidats injectée ici -->
+    </div>
+  </div>
+
+  <script src="/js/common.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

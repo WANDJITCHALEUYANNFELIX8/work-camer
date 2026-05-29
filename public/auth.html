@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentification & Sécurité Biométrique - WorkCamer</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .auth-wrapper {
+      max-width: 500px;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+    }
+    .auth-box {
+      padding: 2.5rem;
+    }
+    .auth-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    .auth-subtitle {
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .switch-mode {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .switch-mode a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .switch-mode a:hover {
+      text-decoration: underline;
+    }
+    /* Biometric steps list */
+    .step-log {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-md);
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      border: 1px solid var(--border-glass);
+    }
+    .step-log-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .step-log-item.active {
+      color: var(--primary);
+    }
+    .step-log-item.pending {
+      color: var(--secondary);
+    }
+    .step-log-item.done {
+      color: var(--primary);
+    }
+    .simulated-results {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: rgba(34, 197, 94, 0.05);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: var(--radius-md);
+      display: none;
+    }
+    .simulated-results h4 {
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+    .result-row span:first-child {
+      color: var(--text-secondary);
+    }
+    .result-row span:last-child {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/index.html" class="logo">
+      WorkCamer <span class="logo-star">★</span>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <!-- Rempli par common.js -->
+    </ul>
+  </nav>
+
+  <div class="auth-wrapper">
+    
+    <!-- ÉCRAN CONNEXION -->
+    <div id="login-container" class="glass-panel auth-box">
+      <h2 class="auth-title">Connexion</h2>
+      <p class="auth-subtitle">Accédez à vos offres et micro-services</p>
+      
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">Adresse Email</label>
+          <input type="email" id="login-email" class="form-control" placeholder="exemple@mail.cm" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Mot de passe</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Se connecter</button>
+      </form>
+
+      <div class="switch-mode">
+        Pas encore de compte ? <a href="#" onclick="toggleMode('register')">Créer un compte</a>
+      </div>
+    </div>
+
+    <!-- ÉCRAN INSCRIPTION -->
+    <div id="register-container" class="glass-panel auth-box" style="display: none;">
+      <h2 class="auth-title">Inscription</h2>
+      <p class="auth-subtitle">Rejoignez la plus grande plateforme de micro-missions au Cameroun</p>
+      
+      <form id="register-form">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="reg-nom">Nom</label>
+            <input type="text" id="reg-nom" class="form-control" placeholder="Fouda" required>
+          </div>
+          <div class="form-group">
+            <label for="reg-prenom">Prénom</label>
+            <input type="text" id="reg-prenom" class="form-control" placeholder="Jean" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email">Adresse Email</label>
+          <input type="email" id="reg-email" class="form-control" placeholder="jean.fouda@mail.cm" required>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-tel">Numéro de téléphone</label>
+          <input type="tel" id="reg-tel" class="form-control" placeholder="+237 6xx xx xx xx" required>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-type">Type d'utilisateur</label>
+          <select id="reg-type" class="form-control" required>
+            <option value="Candidat">Candidat (Recherche d'emploi / Micro-missions)</option>
+            <option value="Recruteur">Recruteur / Entreprise (Publication d'offres)</option>
+            <option value="Particulier">Particulier (Besoin d'un service ponctuel)</option>
+          </select>
+        </div>
+
+        <!-- ESPACE DE GEOLOCALISATION AUTO -->
+        <div class="geoloc-container" style="margin-bottom: 1.25rem; padding: 1rem; border: 1px dashed var(--border-glass); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.01);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; gap: 5px;">
+              📍 Géolocalisation Cameroun
+            </span>
+            <button type="button" onclick="detectUserLocation()" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; border-radius: 5px;">
+              Re-détecter
+            </button>
+          </div>
+          <div id="geoloc-loader" style="font-size: 0.8rem; color: var(--secondary); display: none; align-items: center; gap: 8px;">
+            <span class="spinner-small"></span> <span>Récupération GPS en cours...</span>
+          </div>
+          <p id="geoloc-status" style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0;">
+            Position non détectée. Cliquez sur re-détecter ou saisissez manuellement ci-dessous.
+          </p>
+          <div style="text-align: right; margin-top: 5px;">
+            <span onclick="enableManualLocationInput()" style="font-size: 0.75rem; color: var(--primary); cursor: pointer; text-decoration: underline;">
+              Saisir manuellement
+            </span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="reg-ville">Ville</label>
+            <input type="text" id="reg-ville" class="form-control" placeholder="Ex: Douala" required readonly style="background: rgba(255,255,255,0.02); cursor: not-allowed;">
+          </div>
+          <div class="form-group">
+            <label for="reg-quartier">Quartier</label>
+            <input type="text" id="reg-quartier" class="form-control" placeholder="Ex: Akwa" required readonly style="background: rgba(255,255,255,0.02); cursor: not-allowed;">
+          </div>
+        </div>
+
+        <!-- Coordonnées GPS réelles/simulées (masquées par défaut mais soumises) -->
+        <input type="hidden" id="reg-lat" value="4.0511">
+        <input type="hidden" id="reg-lng" value="9.7679">
+
+        <div class="form-group">
+          <label for="reg-password">Mot de passe</label>
+          <input type="password" id="reg-password" class="form-control" placeholder="Min. 6 caractères" required minlength="6">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">S'inscrire</button>
+      </form>
+
+      <div class="switch-mode">
+        Vous avez déjà un compte ? <a href="#" onclick="toggleMode('login')">Se connecter</a>
+      </div>
+    </div>
+
+    <!-- ÉCRAN VÉRIFICATION CNI BIOMÉTRIQUE -->
+    <div id="cni-verification-container" class="glass-panel auth-box" style="display: none;">
+      <h2 class="auth-title">Vérification CNI</h2>
+      <p class="auth-subtitle">Sécurité 100% : Faites valider vos pièces pour publier ou postuler</p>
+      
+      <div class="form-group">
+        <label>1. Photo de votre Carte Nationale d'Identité (Recto/Verso)</label>
+        <div id="cni-box" class="scanner-box" onclick="triggerUpload('cni-file')">
+          <div class="scanner-laser"></div>
+          <div class="scanner-placeholder" style="text-align: center;">
+            <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">🪪</span>
+            <span>Cliquez pour charger la photo CNI</span>
+          </div>
+          <img id="cni-preview" alt="Aperçu CNI">
+        </div>
+        <input type="file" id="cni-file" style="display: none;" accept="image/*" onchange="previewImage(this, 'cni')">
+      </div>
+
+      <div class="form-group">
+        <label>2. Selfie de Contrôle Facial</label>
+        <div id="selfie-box" class="scanner-box" onclick="triggerUpload('selfie-file')">
+          <div class="scanner-laser"></div>
+          <div class="scanner-placeholder" style="text-align: center;">
+            <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">📸</span>
+            <span>Cliquez pour charger votre selfie</span>
+          </div>
+          <img id="selfie-preview" alt="Aperçu Selfie">
+        </div>
+        <input type="file" id="selfie-file" style="display: none;" accept="image/*" onchange="previewImage(this, 'selfie')">
+      </div>
+
+      <button id="btn-start-verify" onclick="startBiometricVerification()" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">
+        Démarrer l'analyse d'identité
+      </button>
+
+      <!-- Logs d'exécution dynamiques (Console biométrique) -->
+      <div id="step-logs" class="step-log">
+        <div id="log-1" class="step-log-item"><span>⚙️</span> Initialisation de la caméra et chargement des modèles...</div>
+        <div id="log-2" class="step-log-item"><span>⚙️</span> Lancement de l'extraction de texte OCR CNI...</div>
+        <div id="log-3" class="step-log-item"><span>⚙️</span> Vérification des hologrammes République du Cameroun...</div>
+        <div id="log-4" class="step-log-item"><span>⚙️</span> Calcul des repères géométriques faciaux (Selfie)...</div>
+        <div id="log-5" class="step-log-item"><span>⚙️</span> Analyse de correspondance et calcul de similarité...</div>
+      </div>
+
+      <!-- Résultats simulés -->
+      <div id="verify-results" class="simulated-results">
+        <h4>✅ IDENTITÉ VÉRIFIÉE À 100%</h4>
+        <div class="result-row">
+          <span>Numéro de CNI extrait :</span>
+          <span id="res-cni">...</span>
+        </div>
+        <div class="result-row">
+          <span>Nom extrait de la carte :</span>
+          <span id="res-nom">...</span>
+        </div>
+        <div class="result-row">
+          <span>Correspondance faciale :</span>
+          <span id="res-score" style="color: var(--primary);">...</span>
+        </div>
+        <div class="result-row">
+          <span>Statut :</span>
+          <span style="color: var(--primary); font-weight: bold;">VERIFIED</span>
+        </div>
+        
+        <button onclick="finishVerificationFlow()" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; background: var(--primary);">
+          Accéder à la plateforme
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

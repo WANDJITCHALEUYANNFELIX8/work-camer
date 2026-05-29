@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portail Dashboard & Emplois au Cameroun - WorkCamer</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .job-details-modal {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .job-details-modal h3 {
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+    .modal-budget {
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+    .modal-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      border-top: 1px solid var(--border-glass);
+      border-bottom: 1px solid var(--border-glass);
+      padding: 1rem 0;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .meta-item span:first-child {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .meta-item span:last-child {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/index.html" class="logo">
+      WorkCamer <span class="logo-star">★</span>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <!-- Rempli par common.js -->
+    </ul>
+  </nav>
+
+  <!-- Hero Portal Banner -->
+  <section class="search-banner portal-hero">
+    <div class="portal-greeting-box">
+      <h1>Bonjour, <span id="user-display-name">Utilisateur</span> ! 👋</h1>
+      <p class="portal-role-badge">Espace <span id="user-role-text">Candidat</span></p>
+      <div id="cni-status-indicator" class="cni-status-indicator">...</div>
+    </div>
+  </section>
+
+  <!-- Main Portal Container -->
+  <main class="portal-container">
+    
+    <!-- STATS ROW (Widgets) -->
+    <div class="stats-row">
+      <div class="glass-panel stat-card" id="stat-card-primary">
+        <span class="stat-icon">💼</span>
+        <div class="stat-details">
+          <h3 id="stat-count-primary">0</h3>
+          <p id="stat-label-primary">Mes candidatures</p>
+        </div>
+      </div>
+      <div class="glass-panel stat-card" id="stat-card-secondary">
+        <span class="stat-icon">💬</span>
+        <div class="stat-details">
+          <h3 id="stat-count-secondary">0</h3>
+          <p id="stat-label-secondary">Discussions actives</p>
+        </div>
+      </div>
+      <div class="glass-panel stat-card" id="stat-card-tertiary">
+        <span class="stat-icon">🔔</span>
+        <div class="stat-details">
+          <h3 id="stat-count-tertiary">0</h3>
+          <p id="stat-label-tertiary">Notifications</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKSPACE: Notifications & Quick Chat -->
+    <div class="portal-main-area">
+      
+      <!-- GAUCHE : Actions & Centre de Notifications -->
+      <div class="portal-left">
+        <!-- BOUTONS D'ACTIONS DYNAMIQUES -->
+        <div class="glass-panel action-box">
+          <h3>Actions Disponibles</h3>
+          <div class="action-buttons-grid">
+            <button class="btn btn-primary" onclick="toggleJobsSection()" id="btn-toggle-jobs" style="font-weight: 700; font-size: 1.05rem;">
+              💼 Afficher les Offres Disponibles
+            </button>
+            <a href="/dashboard.html" class="btn btn-secondary" id="btn-go-dashboard">
+              📊 Tableau de Bord Personnel
+            </a>
+            <a href="/chat.html" class="btn btn-secondary">
+              💬 Ouvrir la Messagerie
+            </a>
+          </div>
+        </div>
+
+        <!-- CENTRE DE NOTIFICATIONS -->
+        <div class="glass-panel notification-box" id="notifications-block">
+          <div class="box-header">
+            <h3>🔔 Centre de Notifications</h3>
+            <div class="box-actions">
+              <span class="action-link" onclick="markAllNotificationsAsRead()">Tout marquer comme lu</span>
+              <span style="color: var(--text-muted);">|</span>
+              <span class="action-link text-danger" onclick="clearAllNotifications()">Tout effacer</span>
+            </div>
+          </div>
+          <div id="notifications-list" class="notifications-list">
+            <p class="empty-state">Chargement des notifications...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DROITE : Mini Chat / Discussions Récentes -->
+      <div class="portal-right">
+        <div class="glass-panel mini-chat-box">
+          <h3>💬 Échanges Récents</h3>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">Accès direct aux discussions sécurisées</p>
+          <div id="mini-chat-list" class="mini-chat-list">
+            <p class="empty-state">Chargement des discussions...</p>
+          </div>
+          <a href="/chat.html" class="btn btn-secondary" style="width: 100%; margin-top: 1rem; text-align: center; display: block; font-size: 0.85rem; padding: 0.6rem;">
+            Ouvrir la messagerie complète
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SECTION MASQUÉE/AFFICHLABLE : OFFRES DISPONIBLES -->
+    <div id="jobs-search-section" class="jobs-search-section" style="display: none; margin-top: 3rem; border-top: 1px solid var(--border-glass); padding-top: 2rem;">
+      <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem; text-align: center; color: var(--text-primary);">
+        🔍 Recherche d'Offres d'Emplois & Micro-missions
+      </h2>
+      
+      <div class="search-container">
+        
+        <!-- FILTRES DE RECHERCHE -->
+        <aside class="glass-panel filter-panel">
+          <div class="filter-title">
+            <span>Filtres de recherche</span>
+            <span style="font-size: 0.8rem; cursor: pointer; color: var(--primary);" onclick="resetFilters()">Réinitialiser</span>
+          </div>
+
+          <form id="filters-form">
+            <div class="form-group">
+              <label for="filter-ville">Ville</label>
+              <select id="filter-ville" class="form-control" onchange="applyFilters()">
+                <option value="">Toutes les villes</option>
+                <option value="Douala">Douala</option>
+                <option value="Yaoundé">Yaoundé</option>
+                <option value="Bafoussam">Bafoussam</option>
+                <option value="Garoua">Garoua</option>
+                <option value="Bamenda">Bamenda</option>
+                <option value="Buea">Buea</option>
+                <option value="Limbe">Limbe</option>
+                <option value="Kribi">Kribi</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="filter-quartier">Quartier</label>
+              <input type="text" id="filter-quartier" class="form-control" placeholder="Ex: Bastos, Akwa..." oninput="applyFilters()">
+            </div>
+
+            <div class="form-group">
+              <label for="filter-type">Type de contrat</label>
+              <select id="filter-type" class="form-control" onchange="applyFilters()">
+                <option value="">Tous les types</option>
+                <option value="Micro-mission">Micro-mission</option>
+                <option value="Court terme">Court terme</option>
+                <option value="Long terme">Long terme</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="filter-domaine">Domaine d'activité</label>
+              <select id="filter-domaine" class="form-control" onchange="applyFilters()">
+                <option value="">Tous les domaines</option>
+                <option value="Informatique & Dev">Informatique & Dev</option>
+                <option value="Enseignement & Soutien">Enseignement & Soutien</option>
+                <option value="Bâtiment & BTP">Bâtiment & BTP</option>
+                <option value="Commerce & Vente">Commerce & Vente</option>
+                <option value="Ménage & Services">Ménage & Services</option>
+                <option value="Transport & Logistique">Transport & Logistique</option>
+                <option value="Restauration & Cuisine">Restauration & Cuisine</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Budget en CFA (XAF)</label>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="number" id="filter-budget-min" class="form-control" placeholder="Min" oninput="applyFilters()">
+                <span style="color: var(--text-muted);">à</span>
+                <input type="number" id="filter-budget-max" class="form-control" placeholder="Max" oninput="applyFilters()">
+              </div>
+            </div>
+          </form>
+        </aside>
+
+        <!-- RÉSULTATS DES OFFRES -->
+        <section style="flex-grow: 1;">
+          <div class="form-group" style="position: relative; margin-bottom: 2rem;">
+            <input type="text" id="search-keyword" class="form-control" style="padding: 1rem 1.5rem 1rem 3rem; font-size: 1.1rem; border-radius: var(--radius-lg);" placeholder="Rechercher par mot-clé (ex: électricien, développeur node, nounou...)" oninput="applyFilters()">
+            <span style="position: absolute; left: 1.25rem; top: 1.15rem; font-size: 1.2rem; color: var(--text-muted);">🔍</span>
+          </div>
+
+          <div id="job-list" class="job-grid">
+            <!-- Chargé dynamiquement via JavaScript -->
+          </div>
+
+          <div id="no-jobs" style="display: none; text-align: center; padding: 4rem 2rem;" class="glass-panel">
+            <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">💼</span>
+            <h3>Aucune offre ne correspond à vos critères</h3>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Essayez d'élargir votre zone géographique ou de modifier les budgets.</p>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL DE DÉTAIL D'OFFRE & CANDIDATURE -->
+  <div id="job-modal" class="modal-overlay" onclick="closeJobModal(event)">
+    <div class="glass-panel modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeJobModal()">&times;</button>
+      
+      <div class="job-details-modal">
+        <div>
+          <span id="modal-job-type" class="type-badge">...</span>
+          <h3 id="modal-job-title">Titre de l'offre</h3>
+        </div>
+
+        <div class="modal-budget" id="modal-job-budget">0 XAF</div>
+
+        <p id="modal-job-desc" style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+          Description détaillée de la mission...
+        </p>
+
+        <div class="modal-meta-grid">
+          <div class="meta-item">
+            <span>Domaine</span>
+            <span id="modal-job-domaine">...</span>
+          </div>
+          <div class="meta-item">
+            <span>Localisation</span>
+            <span id="modal-job-loc">...</span>
+          </div>
+          <div class="meta-item">
+            <span>Publié par</span>
+            <span id="modal-job-author">...</span>
+          </div>
+          <div class="meta-item">
+            <span>Vérification Auteur</span>
+            <span id="modal-job-author-cni">...</span>
+          </div>
+        </div>
+
+        <!-- ZONE DE CANDIDATURE -->
+        <div id="application-block" style="margin-top: 1rem;">
+          <!-- Injecté dynamiquement selon le statut de connexion et CNI -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AVERTISSEMENT DE VÉRIFICATION CNI REQUISE -->
+  <div id="cni-warning-modal" class="modal-overlay" onclick="closeCniWarningModal(event)">
+    <div class="glass-panel modal-content" onclick="event.stopPropagation()" style="max-width: 450px; text-align: center; padding: 2.5rem;">
+      <span style="font-size: 3.5rem; display: block; margin-bottom: 1rem; animation: pulse 2s infinite;">⚠️</span>
+      <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem;">Vérification CNI Obligatoire</h3>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+        Pour garantir la sécurité et la confiance sur la plateforme, vous devez faire valider votre Carte Nationale d'Identité et effectuer le selfie de contrôle facial avant d'exécuter cette action.
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <a href="/auth.html" class="btn btn-danger" style="display: block; font-weight: 700;">
+          🛡️ Lancer la validation biométrique
+        </a>
+        <button class="btn btn-secondary" onclick="closeCniWarningModal()">
+          Plus tard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
