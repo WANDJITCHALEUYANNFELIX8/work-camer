@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (user.cniStatus !== 'Verified') {
       showCniScreen();
     } else {
-      window.location.href = '/index.html';
+      window.location.href = '/dashboard.html';
     }
   } else if (mode === 'register') {
     toggleMode('register');
@@ -36,6 +36,8 @@ function toggleMode(mode) {
     if (tabLogin) tabLogin.classList.remove('active');
     if (tabRegister) tabRegister.classList.add('active');
     if (authTabs) authTabs.style.display = 'flex';
+    // Auto-trigger geolocation
+    setTimeout(() => { if (typeof detectGeolocation === 'function') detectGeolocation(); }, 300);
   } else {
     loginBox.style.display = 'block';
     registerBox.style.display = 'none';
@@ -74,7 +76,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
       if (data.user.cniStatus !== 'Verified') {
         showCniScreen();
       } else {
-        window.location.href = '/index.html';
+      window.location.href = '/dashboard.html';
       }
     }, 1000);
   } catch (error) {
@@ -235,5 +237,5 @@ function startBiometricVerification() {
 
 // Terminer le flux d'inscription et rediriger
 function finishVerificationFlow() {
-  window.location.href = '/index.html';
+  window.location.href = '/dashboard.html';
 }

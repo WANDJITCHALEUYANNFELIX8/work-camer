@@ -51,15 +51,23 @@
     .meta-item { display:flex; flex-direction:column; }
     .meta-item span:first-child { font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:600; }
     .meta-item span:last-child { font-size:0.95rem; font-weight:600; }
+    /* Loader */
+    .loader-logo-wrap { display:flex;flex-direction:column;align-items:center;animation:loader-enter 0.55s cubic-bezier(0.22,1,0.36,1) both; }
+    @keyframes loader-enter { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+    .loader-bar-track { width:180px;height:3px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin-top:1.5rem; }
+    .loader-bar-fill { height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:99px;animation:loader-fill 0.9s ease forwards; }
+    @keyframes loader-fill { to{width:100%} }
   </style>
 </head>
 <body>
 
   <!-- PAGE LOADER -->
   <div class="page-loader" id="page-loader">
-    <div class="loader-ring"></div>
-    <div class="loader-text">WorkCamer</div>
-    <div class="loader-sub">Scanning des offres...</div>
+    <div class="loader-logo-wrap">
+      <div class="loader-text">WorkCamer</div>
+      <div class="loader-sub">Scanning des offres...</div>
+      <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
+    </div>
   </div>
 
   <nav class="navbar">
