@@ -20,7 +20,9 @@ const messageSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexer pour optimiser les requêtes de chargement d'historique entre deux utilisateurs
+// Index composé pour l'historique entre deux utilisateurs
 messageSchema.index({ expediteur: 1, destinataire: 1, createdAt: 1 });
+// AJOUT : index pour les requêtes par destinataire seul (notifications)
+messageSchema.index({ destinataire: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Message', messageSchema);

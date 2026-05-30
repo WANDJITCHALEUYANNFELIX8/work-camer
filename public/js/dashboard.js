@@ -20,20 +20,14 @@ function initDashboardMenu(user) {
   
   if (user.type === 'Candidat') {
     menuContainer.innerHTML = `
-      <li class="sidebar-item" id="menu-ongoing" onclick="switchTab('ongoing')">
-        🚀 Emplois en cours
-      </li>
       <li class="sidebar-item" id="menu-submissions" onclick="switchTab('submissions')">
         💼 Mes candidatures
       </li>
     `;
-    switchTab('ongoing');
+    switchTab('submissions');
   } else {
     // Recruteur ou Particulier
     menuContainer.innerHTML = `
-      <li class="sidebar-item" id="menu-ongoing" onclick="switchTab('ongoing')">
-        🚀 Missions en cours
-      </li>
       <li class="sidebar-item" id="menu-my-offers" onclick="switchTab('my-offers')">
         📋 Mes offres publiées
       </li>
@@ -43,12 +37,12 @@ function initDashboardMenu(user) {
     `;
     
     // Auto-remplir la localisation du recruteur par défaut
-    if (document.getElementById('job-ville')) document.getElementById('job-ville').value = user.geoloc.ville;
-    if (document.getElementById('job-quartier')) document.getElementById('job-quartier').value = user.geoloc.quartier;
-    if (document.getElementById('job-lat')) document.getElementById('job-lat').value = user.geoloc.latitude;
-    if (document.getElementById('job-lng')) document.getElementById('job-lng').value = user.geoloc.longitude;
+    document.getElementById('job-ville').value = user.geoloc.ville;
+    document.getElementById('job-quartier').value = user.geoloc.quartier;
+    document.getElementById('job-lat').value = user.geoloc.latitude;
+    document.getElementById('job-lng').value = user.geoloc.longitude;
 
-    switchTab('ongoing');
+    switchTab('my-offers');
   }
 }
 
@@ -60,13 +54,20 @@ function switchTab(tabName) {
   const menuItems = document.querySelectorAll('.sidebar-item');
   menuItems.forEach(item => item.classList.remove('active'));
   
-  if (document.getElementById('section-publish')) document.getElementById('section-publish').style.display = 'none';
-  if (document.getElementById('section-my-offers')) document.getElementById('section-my-offers').style.display = 'none';
-  if (document.getElementById('section-my-submissions')) document.getElementById('section-my-submissions').style.display = 'none';
-  if (document.getElementById('section-ongoing')) document.getElementById('section-ongoing').style.display = 'none';
+  document.getElementById('section-publish').style.display = 'none';
+  document.getElementById('section-my-offers').style.display = 'none';
+  document.getElementById('section-my-submissions').style.display = 'none';
   
   // Activer l'élément courant
   if (tabName === 'publish') {
+    const user = getUser();
+    if (user && user.cniStatus !== 'Verified') {
+      showToast('Veuillez faire vérifier votre CNI avant de publier une offre.', 'error');
+      setTimeout(() => {
+        window.location.href = '/auth.html';
+      }, 1500);
+      return;
+    }
     document.getElementById('menu-publish').classList.add('active');
     document.getElementById('section-publish').style.display = 'block';
   } else if (tabName === 'my-offers') {
@@ -77,10 +78,6 @@ function switchTab(tabName) {
     document.getElementById('menu-submissions').classList.add('active');
     document.getElementById('section-my-submissions').style.display = 'block';
     loadMySubmissions();
-  } else if (tabName === 'ongoing') {
-    document.getElementById('menu-ongoing').classList.add('active');
-    document.getElementById('section-ongoing').style.display = 'block';
-    loadOngoingJobs();
   }
 }
 
@@ -140,6 +137,12 @@ document.getElementById('create-job-form').addEventListener('submit', async (e) 
   const quartier = document.getElementById('job-quartier').value;
   const latitude = document.getElementById('job-lat').value;
   const longitude = document.getElementById('job-lng').value;
+
+  const user = getUser();
+  if (user && user.cniStatus !== 'Verified') {
+    showToast('Action impossible : Vous devez vérifier votre CNI.', 'error');
+    return;
+  }
 
   try {
     await apiCall('/jobs', {
@@ -309,167 +312,6 @@ async function loadMySubmissions() {
       `;
       tbody.appendChild(tr);
     });
-  } catch (error) {
-    showToast(error.message, 'error');
-  }
-}
-
-// --- LOGIQUE COMMUNE : CHARGER LES MISSIONS & EMPLOIS EN COURS ---
-async function loadOngoingJobs() {
-  const user = getUser();
-  const tbody = document.getElementById('ongoing-tbody');
-  const theadRow = document.getElementById('ongoing-thead-row');
-  const msg = document.getElementById('no-ongoing-msg');
-  
-  if (!tbody || !theadRow || !msg) return;
-  
-  tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Chargement des missions en cours...</td></tr>';
-  msg.style.display = 'none';
-  
-  try {
-    if (user.type === 'Candidat') {
-      // Pour le candidat
-      theadRow.innerHTML = `
-        <th>Mission</th>
-        <th>Recruteur</th>
-        <th>Contact</th>
-        <th>Budget</th>
-        <th>Actions</th>
-      `;
-      
-      const data = await apiCall('/applications/my/submissions', { method: 'GET' });
-      const acceptedApps = data.submissions.filter(app => app.statut === 'Accepté');
-      
-      tbody.innerHTML = '';
-      if (acceptedApps.length === 0) {
-        msg.style.display = 'block';
-        return;
-      }
-      
-      acceptedApps.forEach(app => {
-        const tr = document.createElement('tr');
-        const job = app.job;
-        const rec = job.auteur;
-        const formattedBudget = new Intl.NumberFormat('fr-FR').format(job.budget) + ' XAF';
-        
-        tr.innerHTML = `
-          <td style="font-weight: 600;">
-            ${job.titre}
-            <div style="font-size: 0.75rem; color: var(--primary); font-weight: normal; margin-top: 2px;">${job.domaine}</div>
-          </td>
-          <td>${rec.prenom} ${rec.nom}</td>
-          <td>
-            <div style="font-size: 0.85rem;">📞 ${rec.telephone}</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary);">📧 ${rec.email}</div>
-          </td>
-          <td style="font-weight: 700; color: var(--primary);">${formattedBudget}</td>
-          <td>
-            <button class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: var(--secondary); color: #000;" onclick="startChat('${rec._id}')">
-              💬 Discuter
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    } else {
-      // Pour le recruteur
-      theadRow.innerHTML = `
-        <th>Mission</th>
-        <th>Prestataire Habilité</th>
-        <th>Contact</th>
-        <th>Budget</th>
-        <th>Actions</th>
-      `;
-      
-      const data = await apiCall('/jobs/my/offers', { method: 'GET' });
-      const ongoingJobs = data.jobs.filter(job => job.statut === 'En cours');
-      
-      tbody.innerHTML = '';
-      if (ongoingJobs.length === 0) {
-        msg.style.display = 'block';
-        return;
-      }
-      
-      // Pour chaque job en cours, charger les candidats pour trouver celui qui est accepté
-      for (const job of ongoingJobs) {
-        let candidateName = 'Recherche...';
-        let candidateContact = 'Chargement...';
-        let candidateId = '';
-        
-        try {
-          const appData = await apiCall(`/applications/job/${job._id}`, { method: 'GET' });
-          const acceptedApp = appData.applications.find(app => app.statut === 'Accepté');
-          
-          if (acceptedApp) {
-            const cand = acceptedApp.candidat;
-            candidateId = cand._id;
-            candidateName = `${cand.prenom} ${cand.nom}`;
-            candidateContact = `
-              <div style="font-size: 0.85rem;">📞 ${cand.telephone}</div>
-              <div style="font-size: 0.75rem; color: var(--text-secondary);">📧 ${cand.email}</div>
-            `;
-          } else {
-            candidateName = 'Aucun (Erreur)';
-            candidateContact = 'N/A';
-          }
-        } catch (err) {
-          candidateName = 'Erreur de chargement';
-          candidateContact = 'N/A';
-        }
-        
-        const tr = document.createElement('tr');
-        const formattedBudget = new Intl.NumberFormat('fr-FR').format(job.budget) + ' XAF';
-        
-        // Actions: chat avec le prestataire + marquer comme terminé (Clôturé)
-        let actionButtons = '-';
-        if (candidateId) {
-          actionButtons = `
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: var(--secondary); color: #000;" onclick="startChat('${candidateId}')">
-                💬 Discuter
-              </button>
-              <button class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="closeJob('${job._id}')">
-                ✅ Terminer
-              </button>
-            </div>
-          `;
-        }
-        
-        tr.innerHTML = `
-          <td style="font-weight: 600;">
-            ${job.titre}
-            <div style="font-size: 0.75rem; color: var(--primary); font-weight: normal; margin-top: 2px;">${job.domaine}</div>
-          </td>
-          <td>
-            <span style="font-weight: 600;">${candidateName}</span>
-            <div style="margin-top: 2px;"><span class="cni-badge verified" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">CNI OK</span></div>
-          </td>
-          <td>${candidateContact}</td>
-          <td style="font-weight: 700; color: var(--primary);">${formattedBudget}</td>
-          <td>${actionButtons}</td>
-        `;
-        tbody.appendChild(tr);
-      }
-    }
-  } catch (error) {
-    showToast(error.message, 'error');
-  }
-}
-
-// Clôturer une mission
-async function closeJob(jobId) {
-  if (!confirm('Voulez-vous vraiment marquer cette mission comme terminée et clôturée ?')) {
-    return;
-  }
-  
-  try {
-    await apiCall(`/jobs/${jobId}/status`, {
-      method: 'PUT',
-      body: JSON.stringify({ statut: 'Clôturé' })
-    });
-    
-    showToast('La mission a été clôturée avec succès !', 'success');
-    loadOngoingJobs();
   } catch (error) {
     showToast(error.message, 'error');
   }

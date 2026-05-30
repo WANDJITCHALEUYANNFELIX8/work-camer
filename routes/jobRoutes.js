@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { createJob, getJobs, getJobById, getMyOffers, updateJobStatus } = require('../controllers/jobController');
-const { protect } = require('../middleware/authMiddleware');
+const { createJob, getJobs, getJobById, getMyOffers } = require('../controllers/jobController');
+const { protect, verifiedOnly } = require('../middleware/authMiddleware');
 
 router.get('/', getJobs);
-router.post('/', protect, createJob);
+// CORRECTION : routes fixes AVANT les routes dynamiques pour éviter le conflit /my/offers vs /:id
+// CORRECTION : utilisation du middleware verifiedOnly au lieu du check dupliqué dans le contrôleur
 router.get('/my/offers', protect, getMyOffers);
-router.put('/:id/status', protect, updateJobStatus);
+router.post('/', protect, verifiedOnly, createJob);
 router.get('/:id', getJobById);
 
 module.exports = router;

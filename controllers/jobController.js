@@ -1,18 +1,11 @@
 const Job = require('../models/Job');
+const mongoose = require('mongoose');
 
 // @desc    Créer une nouvelle offre d'emploi / micro-mission
 // @route   POST /api/jobs
-// @access  Private (Vérifié uniquement)
+// @access  Private + verifiedOnly (géré via middleware dans la route)
 exports.createJob = async (req, res) => {
   try {
-    // Vérifier si l'utilisateur a sa CNI validée
-    if (req.user.cniStatus !== 'Verified') {
-      return res.status(403).json({
-        success: false,
-        message: 'Vous devez faire vérifier votre CNI avant de pouvoir publier une offre.'
-      });
-    }
-
     const { titre, description, type, domaine, budget, ville, quartier, latitude, longitude } = req.body;
 
     const job = await Job.create({
@@ -24,7 +17,7 @@ exports.createJob = async (req, res) => {
       localisation: {
         ville,
         quartier,
-        latitude: parseFloat(latitude) || req.user.geoloc.latitude,
+        latitude:  parseFloat(latitude)  || req.user.geoloc.latitude,
         longitude: parseFloat(longitude) || req.user.geoloc.longitude
       },
       auteur: req.user._id
@@ -49,49 +42,29 @@ exports.getJobs = async (req, res) => {
 
     let query = {};
 
-    // Filtre Ville / Quartier (insensible à la casse)
-    if (ville) {
-      query['localisation.ville'] = { $regex: ville, $options: 'i' };
-    }
-    if (quartier) {
-      query['localisation.quartier'] = { $regex: quartier, $options: 'i' };
-    }
+    if (ville)    query['localisation.ville']    = { $regex: ville,    $options: 'i' };
+    if (quartier) query['localisation.quartier'] = { $regex: quartier, $options: 'i' };
+    if (type)     query.type = type;
+    if (domaine)  query.domaine = { $regex: domaine, $options: 'i' };
 
-    // Filtre Type de tâche
-    if (type) {
-      query.type = type;
-    }
-
-    // Filtre Domaine
-    if (domaine) {
-      query.domaine = { $regex: domaine, $options: 'i' };
-    }
-
-    // Filtre Budget (XAF)
     if (budgetMin || budgetMax) {
       query.budget = {};
       if (budgetMin) query.budget.$gte = parseInt(budgetMin);
       if (budgetMax) query.budget.$lte = parseInt(budgetMax);
     }
 
-    // Recherche par mot-clé (dans titre et description)
     if (search) {
       query.$or = [
-        { titre: { $regex: search, $options: 'i' } },
+        { titre:       { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } }
       ];
     }
 
-    // Récupérer les jobs triés par date décroissante et peupler l'auteur
     const jobs = await Job.find(query)
       .populate('auteur', 'nom prenom email telephone cniStatus geoloc')
       .sort({ createdAt: -1 });
 
-    res.status(200).json({
-      success: true,
-      count: jobs.length,
-      jobs
-    });
+    res.status(200).json({ success: true, count: jobs.length, jobs });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -102,7 +75,13 @@ exports.getJobs = async (req, res) => {
 // @access  Public
 exports.getJobById = async (req, res) => {
   try {
-    const job = await Job.findById(req.params.id).populate('auteur', 'nom prenom email telephone cniStatus');
+    // CORRECTION : valider l'ID avant la requête MongoDB
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'ID invalide' });
+    }
+
+    const job = await Job.findById(req.params.id)
+      .populate('auteur', 'nom prenom email telephone cniStatus');
     if (!job) {
       return res.status(404).json({ success: false, message: 'Offre introuvable' });
     }
@@ -112,51 +91,13 @@ exports.getJobById = async (req, res) => {
   }
 };
 
-// @desc    Obtenir les offres publiées par l'utilisateur connecté (Recruteur)
+// @desc    Obtenir les offres publiées par l'utilisateur connecté
 // @route   GET /api/jobs/my/offers
 // @access  Private
 exports.getMyOffers = async (req, res) => {
   try {
     const jobs = await Job.find({ auteur: req.user._id }).sort({ createdAt: -1 });
-    res.status(200).json({
-      success: true,
-      count: jobs.length,
-      jobs
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// @desc    Mettre à jour le statut d'une offre d'emploi
-// @route   PUT /api/jobs/:id/status
-// @access  Private
-exports.updateJobStatus = async (req, res) => {
-  try {
-    const { statut } = req.body; // 'Ouvert', 'En cours', 'Clôturé'
-    
-    if (!['Ouvert', 'En cours', 'Clôturé'].includes(statut)) {
-      return res.status(400).json({ success: false, message: 'Statut de job invalide' });
-    }
-
-    const job = await Job.findById(req.params.id);
-    if (!job) {
-      return res.status(404).json({ success: false, message: 'Offre d\'emploi introuvable' });
-    }
-
-    // Vérifier si l'utilisateur est bien l'auteur du job
-    if (job.auteur.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Non autorisé à modifier cette offre' });
-    }
-
-    job.statut = statut;
-    await job.save();
-
-    res.status(200).json({
-      success: true,
-      message: `Statut de l'offre mis à jour à : ${statut}`,
-      job
-    });
+    res.status(200).json({ success: true, count: jobs.length, jobs });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

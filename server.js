@@ -4,127 +4,160 @@ const socketio = require('socket.io');
 const dotenv = require('dotenv');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const cors = require('cors');
 
-// Charge les variables d'environnement
+// Charger les variables d'environnement en premier
 dotenv.config();
 
-const connectDB = require('./config/db');
-const authRoutes = require('./routes/authRoutes');
-const jobRoutes = require('./routes/jobRoutes');
-const applicationRoutes = require('./routes/applicationRoutes');
-const messageRoutes = require('./routes/messageRoutes');
-const Message = require('./models/Message');
-const User = require('./models/User');
+// CORRECTION : vérifier les variables obligatoires au démarrage
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL : JWT_SECRET est absent du fichier .env. Arrêt du serveur.');
+  process.exit(1);
+}
 
-// Connexion à la base de données
+const connectDB = require('./config/db');
+const authRoutes         = require('./routes/authRoutes');
+const jobRoutes          = require('./routes/jobRoutes');
+const applicationRoutes  = require('./routes/applicationRoutes');
+const messageRoutes      = require('./routes/messageRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const Message            = require('./models/Message');
+const User               = require('./models/User');
+
 connectDB();
 
 const app = express();
 const server = http.createServer(app);
 
-// Configuration de Socket.io avec authentification JWT
+// CORRECTION : headers de sécurité HTTP
+app.use(helmet({
+  // Désactiver CSP strict pour compatibilité avec les assets front-end servis en statique
+  contentSecurityPolicy: false
+}));
+
+// CORRECTION : CORS configuré (restreindre en production via CLIENT_URL dans .env)
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5100'
+}));
+
+// Socket.io avec CORS
 const io = socketio(server, {
   cors: {
-    origin: '*',
+    origin: process.env.CLIENT_URL || 'http://localhost:5100',
     methods: ['GET', 'POST']
   }
 });
 
-// Middleware Express
-app.use(express.json({ limit: '10mb' })); // Supporte les envois de photos base64
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Servir les fichiers statiques du front-end
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Enregistrer les routes API
-app.use('/api/auth', authRoutes);
-app.use('/api/jobs', jobRoutes);
-app.use('/api/applications', applicationRoutes);
-app.use('/api/messages', messageRoutes);
+// Injecter Socket.io dans l'objet request
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
-// Rediriger toutes les autres requêtes vers la page d'accueil
+// Routes API
+app.use('/api/auth',          authRoutes);
+app.use('/api/jobs',          jobRoutes);
+app.use('/api/applications',  applicationRoutes);
+app.use('/api/messages',      messageRoutes);
+app.use('/api/notifications', notificationRoutes);
+
+// CORRECTION : handler 404 JSON pour les routes /api inconnues AVANT le catch-all front-end
+app.use('/api', (req, res) => {
+  res.status(404).json({ success: false, message: 'Route API introuvable' });
+});
+
+// Catch-all : renvoyer index.html pour le routage côté client (SPA)
 app.get('{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Socket.io Middleware pour l'authentification
+// Authentification Socket.io
 io.use((socket, next) => {
   const token = socket.handshake.auth.token || socket.handshake.query.token;
 
   if (!token) {
-    return next(new Error('Erreur d\'authentification : Token manquant'));
+    return next(new Error("Erreur d'authentification : Token manquant"));
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_work_camer_123');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     socket.userId = decoded.id;
     next();
   } catch (err) {
-    return next(new Error('Erreur d\'authentification : Token invalide ou expiré'));
+    return next(new Error("Erreur d'authentification : Token invalide ou expiré"));
   }
 });
 
-// Gestion des connexions Socket.io en temps réel
+// Gestion des connexions Socket.io
 io.on('connection', async (socket) => {
-  console.log(`Nouvelle connexion temps réel initiée pour l'utilisateur : ${socket.userId}`);
+  console.log(`Nouvelle connexion temps réel : ${socket.userId}`);
 
-  // Mettre l'utilisateur dans son propre salon nommé par son ID
-  // Cela permet de lui envoyer des messages de n'importe où
   socket.join(socket.userId);
 
-  // Mettre à jour le statut en ligne (optionnel)
   try {
     const user = await User.findById(socket.userId);
     if (user) {
-      console.log(`L'utilisateur ${user.prenom} ${user.nom} est en ligne`);
+      console.log(`${user.prenom} ${user.nom} est en ligne`);
     }
   } catch (err) {
     console.error(err);
   }
 
-  // Écouter l'envoi d'un message
   socket.on('send_message', async (data) => {
     try {
       const { destinataire, texte } = data;
 
-      if (!destinataire || !texte || texte.trim() === '') {
-        return;
-      }
+      if (!destinataire || !texte || texte.trim() === '') return;
 
-      // Enregistrer le message en base de données
       const nouveauMessage = await Message.create({
         expediteur: socket.userId,
         destinataire,
         texte: texte.trim()
       });
 
-      // Envoyer le message au destinataire
-      io.to(destinataire).emit('receive_message', nouveauMessage);
+      // Notification de nouveau message
+      try {
+        const Notification = require('./models/Notification');
+        const expediteurInfo = await User.findById(socket.userId);
+        const nomExpediteur = expediteurInfo ? `${expediteurInfo.prenom} ${expediteurInfo.nom}` : "Quelqu'un";
 
-      // Renvoyer également le message à l'expéditeur pour confirmation en direct
+        const notification = await Notification.create({
+          destinataire,
+          texte: `Nouveau message de ${nomExpediteur} : "${texte.trim().substring(0, 30)}${texte.trim().length > 30 ? '...' : ''}"`,
+          type: 'new_message',
+          lien: `/chat.html?contact=${socket.userId}`
+        });
+
+        io.to(destinataire).emit('notification', notification);
+      } catch (notifError) {
+        console.error('Erreur notification message:', notifError.message);
+      }
+
+      io.to(destinataire).emit('receive_message', nouveauMessage);
       io.to(socket.userId).emit('receive_message', nouveauMessage);
 
       console.log(`Message envoyé de ${socket.userId} à ${destinataire}`);
     } catch (err) {
-      console.error('Erreur lors de l\'envoi du message via Socket :', err.message);
+      console.error("Erreur envoi message Socket :", err.message);
     }
   });
 
-  // Gérer l'événement "en train d'écrire"
   socket.on('typing', (data) => {
     const { destinataire } = data;
     socket.to(destinataire).emit('user_typing', { expediteur: socket.userId });
   });
 
-  // Déconnexion
   socket.on('disconnect', () => {
-    console.log(`Utilisateur déconnecté du chat : ${socket.userId}`);
+    console.log(`Utilisateur déconnecté : ${socket.userId}`);
   });
 });
 
-// Port d'écoute
 const PORT = process.env.PORT || 5100;
 server.listen(PORT, () => {
-  console.log(`Serveur démarré en mode production sur le port ${PORT}`);
+  console.log(`Serveur démarré sur le port ${PORT}`);
 });

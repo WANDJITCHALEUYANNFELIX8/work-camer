@@ -1,1065 +1,298 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Authentification - WorkCamer</title>
-    <link rel="stylesheet" href="/css/styles.css" />
-    <style>
-      .auth-wrapper {
-        max-width: 550px;
-        margin: 2rem auto;
-        padding: 0 1rem;
-      }
-      .auth-card {
-        padding: 3rem 2.5rem;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .auth-tabs {
-        display: flex;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: var(--radius-md);
-        padding: 0.25rem;
-        margin-bottom: 2rem;
-        border: 1px solid var(--border-glass);
-      }
-      .auth-tab {
-        flex: 1;
-        padding: 0.85rem;
-        text-align: center;
-        cursor: pointer;
-        color: var(--text-secondary);
-        font-weight: 600;
-        transition: var(--transition);
-        border-radius: var(--radius-sm);
-        border: none;
-        font-size: 0.95rem;
-      }
-      .auth-tab.active {
-        color: #fff;
-        background: var(--primary);
-        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-      }
-      .geoloc-assist-box {
-        background: linear-gradient(
-          145deg,
-          rgba(255, 255, 255, 0.02),
-          rgba(255, 255, 255, 0.01)
-        );
-        border: 1px solid var(--border-glass);
-        border-radius: var(--radius-md);
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
-      }
-      .geoloc-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-      }
-      .gps-pulse-container {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        margin-bottom: 0.75rem;
-      }
-      .pulse-dot {
-        width: 8px;
-        height: 8px;
-        background-color: var(--secondary);
-        border-radius: 50%;
-        position: relative;
-      }
-      .pulse-dot::after {
-        content: "";
-        width: 100%;
-        height: 100%;
-        background-color: inherit;
-        border-radius: 50%;
-        position: absolute;
-        animation: pulse-ring 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-      }
-      @keyframes pulse-ring {
-        0% {
-          transform: scale(0.5);
-          opacity: 1;
-        }
-        100% {
-          transform: scale(2.5);
-          opacity: 0;
-        }
-      }
-      .step-log {
-        margin-top: 1.5rem;
-        padding: 1.25rem;
-        background: rgba(11, 15, 25, 0.9);
-        border-radius: var(--radius-md);
-        font-family: monospace;
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        display: none;
-        flex-direction: column;
-        gap: 8px;
-        border: 1px solid var(--border-glass);
-      }
-      .step-log-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: var(--transition);
-      }
-      .step-log-item.active {
-        color: var(--secondary);
-      }
-      .step-log-item.done {
-        color: var(--primary);
-      }
-      .input-icon-group {
-        position: relative;
-      }
-      .input-icon-group .input-icon-svg {
-        position: absolute;
-        left: 1rem;
-        top: 0.85rem;
-        color: var(--text-muted);
-        width: 16px;
-        height: 16px;
-      }
-      .input-icon-group .form-control {
-        padding-left: 2.75rem;
-      }
-      #map-container {
-        width: 100%;
-        height: 220px;
-        border-radius: var(--radius-md);
-        border: 1px solid var(--border-glass);
-        overflow: hidden;
-        margin-bottom: 1rem;
-      }
-      .coord-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-top: 0.75rem;
-      }
-      .coord-row input:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        background: rgba(255, 255, 255, 0.02);
-      }
-      /* Loader: translate + opacity */
-      .loader-logo-wrap {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        animation: loader-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-      }
-      @keyframes loader-enter {
-        from {
-          opacity: 0;
-          transform: translateY(28px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .loader-bar-track {
-        width: 180px;
-        height: 3px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 99px;
-        overflow: hidden;
-        margin-top: 1.5rem;
-      }
-      .loader-bar-fill {
-        height: 100%;
-        width: 0;
-        background: linear-gradient(90deg, var(--primary), var(--secondary));
-        border-radius: 99px;
-        animation: loader-fill 0.9s ease forwards;
-      }
-      @keyframes loader-fill {
-        to {
-          width: 100%;
-        }
-      }
-      /* GPS required banner */
-      .gps-required-banner {
-        background: rgba(234, 179, 8, 0.1);
-        border: 1px solid rgba(234, 179, 8, 0.25);
-        border-radius: var(--radius-md);
-        padding: 0.75rem 1rem;
-        margin-bottom: 1rem;
-        font-size: 0.82rem;
-        color: var(--secondary);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentification & Sécurité Biométrique - WorkCamer</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .auth-wrapper {
+      max-width: 500px;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+    }
+    .auth-box {
+      padding: 2.5rem;
+    }
+    .auth-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    .auth-subtitle {
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .switch-mode {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .switch-mode a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .switch-mode a:hover {
+      text-decoration: underline;
+    }
+    /* Biometric steps list */
+    .step-log {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-md);
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      border: 1px solid var(--border-glass);
+    }
+    .step-log-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .step-log-item.active {
+      color: var(--primary);
+    }
+    .step-log-item.pending {
+      color: var(--secondary);
+    }
+    .step-log-item.done {
+      color: var(--primary);
+    }
+    .simulated-results {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: rgba(34, 197, 94, 0.05);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: var(--radius-md);
+      display: none;
+    }
+    .simulated-results h4 {
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+    .result-row span:first-child {
+      color: var(--text-secondary);
+    }
+    .result-row span:last-child {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
 
-      /* ── Tab indicator sliding pill ── */
-      .auth-tabs {
-        position: relative;
-      }
-      .tab-pill {
-        position: absolute;
-        top: 0.25rem;
-        bottom: 0.25rem;
-        width: calc(50% - 0.25rem);
-        background: var(--primary);
-        border-radius: var(--radius-sm);
-        box-shadow: 0 4px 15px rgba(34,197,94,0.35);
-        transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-        z-index: 0;
-        pointer-events: none;
-      }
-      .tab-pill.right { transform: translateX(calc(100% + 0.25rem)); }
-      .auth-tab {
-        position: relative;
-        z-index: 1;
-        transition: color 0.25s ease;
-      }
-      .auth-tab.active { background: transparent !important; box-shadow: none !important; color: #fff; }
-      .auth-tab:not(.active) { color: var(--text-secondary); }
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/index.html" class="logo">
+      WorkCamer <span class="logo-star">★</span>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <!-- Rempli par common.js -->
+    </ul>
+  </nav>
 
-      /* ── Conteneurs connexion/inscription : slide animé ── */
-      #login-container,
-      #register-container {
-        animation: none;
-      }
-      @keyframes slideInLeft {
-        from { opacity: 0; transform: translateX(-24px); }
-        to   { opacity: 1; transform: translateX(0); }
-      }
-      @keyframes slideInRight {
-        from { opacity: 0; transform: translateX(24px); }
-        to   { opacity: 1; transform: translateX(0); }
-      }
-      .slide-in-left  { animation: slideInLeft  0.3s cubic-bezier(0.22,1,0.36,1) both; }
-      .slide-in-right { animation: slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both; }
+  <div class="auth-wrapper">
+    
+    <!-- ÉCRAN CONNEXION -->
+    <div id="login-container" class="glass-panel auth-box">
+      <h2 class="auth-title">Connexion</h2>
+      <p class="auth-subtitle">Accédez à vos offres et micro-services</p>
+      
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">Adresse Email</label>
+          <input type="email" id="login-email" class="form-control" placeholder="exemple@mail.cm" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Mot de passe</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Se connecter</button>
+      </form>
 
-      /* ── Focus ring inputs ── */
-      .form-control:focus {
-        outline: none;
-        border-color: var(--primary) !important;
-        box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
-        transition: border-color 0.2s, box-shadow 0.2s;
-      }
-      /* ── Submit btn loading state ── */
-      .btn-loading {
-        position: relative;
-        pointer-events: none;
-        opacity: 0.85;
-      }
-      .btn-loading::after {
-        content: '';
-        position: absolute;
-        right: 1rem; top: 50%;
-        transform: translateY(-50%);
-        width: 16px; height: 16px;
-        border: 2px solid rgba(255,255,255,0.4);
-        border-top-color: #fff;
-        border-radius: 50%;
-        animation: spin 0.7s linear infinite;
-      }
-      @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
-    </style>
-  </head>
-  <body>
-    <!-- PAGE LOADER -->
-    <div class="page-loader" id="page-loader">
-      <div class="loader-logo-wrap">
-        <div class="loader-text">WorkCamer</div>
-        <div class="loader-sub">Chargement...</div>
-        <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
+      <div class="switch-mode">
+        Pas encore de compte ? <a href="#" onclick="toggleMode('register')">Créer un compte</a>
       </div>
     </div>
 
-    <nav class="navbar">
-      <a href="/index.html" class="logo"
-        >WorkCamer <span class="logo-star">&#9733;</span></a
-      >
-      <ul class="nav-links" id="nav-links"></ul>
-    </nav>
-
-    <div class="auth-wrapper">
-      <div class="glass-panel auth-card">
-        <div class="auth-tabs" id="auth-selector-tabs">
-          <div class="tab-pill" id="tab-pill"></div>
-          <div
-            class="auth-tab active"
-            id="tab-login"
-            onclick="toggleMode('login')"
-          >
-            Connexion
-          </div>
-          <div
-            class="auth-tab"
-            id="tab-register"
-            onclick="toggleMode('register')"
-          >
-            Créer un compte
-          </div>
-        </div>
-
-        <!-- CONNEXION -->
-        <div id="login-container">
-          <h2
-            class="auth-title"
-            style="text-align: left; margin-bottom: 0.25rem"
-          >
-            Bienvenue !
-          </h2>
-          <p
-            class="auth-subtitle"
-            style="text-align: left; margin-bottom: 2rem"
-          >
-            Accédez à vos offres et micro-services en toute sécurité.
-          </p>
-          <form id="login-form">
-            <div class="form-group">
-              <label for="login-email">Adresse Email</label>
-              <div class="input-icon-group">
-                <svg
-                  class="input-icon-svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
-                  ></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-                <input
-                  type="email"
-                  id="login-email"
-                  class="form-control"
-                  placeholder="exemple@mail.cm"
-                  required
-                />
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="login-password">Mot de passe</label>
-              <div class="input-icon-group">
-                <svg
-                  class="input-icon-svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect
-                    x="3"
-                    y="11"
-                    width="18"
-                    height="11"
-                    rx="2"
-                    ry="2"
-                  ></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-                <input
-                  type="password"
-                  id="login-password"
-                  class="form-control"
-                  placeholder="Votre mot de passe"
-                  required
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              class="btn btn-primary"
-              style="width: 100%; margin-top: 1.5rem; height: 3rem"
-            >
-              Se connecter
-            </button>
-          </form>
-        </div>
-
-        <!-- INSCRIPTION -->
-        <div id="register-container" style="display: none">
-          <h2
-            class="auth-title"
-            style="text-align: left; margin-bottom: 0.25rem"
-          >
-            Création de compte
-          </h2>
-          <p
-            class="auth-subtitle"
-            style="text-align: left; margin-bottom: 2rem"
-          >
-            Rejoignez la plateforme leader des services sécurisés.
-          </p>
-          <form id="register-form">
-            <div
-              style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem"
-            >
-              <div class="form-group">
-                <label for="reg-nom">Nom</label>
-                <div class="input-icon-group">
-                  <svg
-                    class="input-icon-svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="8.5" cy="7" r="4"></circle>
-                  </svg>
-                  <input
-                    type="text"
-                    id="reg-nom"
-                    class="form-control"
-                    placeholder="Fouda"
-                    required
-                  />
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="reg-prenom">Prénom</label>
-                <div class="input-icon-group">
-                  <svg
-                    class="input-icon-svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="8.5" cy="7" r="4"></circle>
-                  </svg>
-                  <input
-                    type="text"
-                    id="reg-prenom"
-                    class="form-control"
-                    placeholder="Jean"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="reg-email">Adresse Email</label>
-              <div class="input-icon-group">
-                <svg
-                  class="input-icon-svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
-                  ></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-                <input
-                  type="email"
-                  id="reg-email"
-                  class="form-control"
-                  placeholder="jean.fouda@mail.cm"
-                  required
-                />
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="reg-tel">Téléphone</label>
-              <div class="input-icon-group">
-                <svg
-                  class="input-icon-svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-                  ></path>
-                </svg>
-                <input
-                  type="tel"
-                  id="reg-tel"
-                  class="form-control"
-                  placeholder="+237 6xx xx xx xx"
-                  required
-                />
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="reg-type">Type de profil</label>
-              <div class="input-icon-group">
-                <svg
-                  class="input-icon-svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                </svg>
-                <select
-                  id="reg-type"
-                  class="form-control"
-                  style="padding-left: 2.75rem"
-                  required
-                >
-                  <option value="Candidat">
-                    Candidat (Recherche d'emploi)
-                  </option>
-                  <option value="Recruteur">Recruteur / Entreprise</option>
-                  <option value="Particulier">
-                    Particulier (Service ponctuel)
-                  </option>
-                </select>
-              </div>
-            </div>
-
-            <!-- GÉOLOCALISATION GOOGLE MAPS -->
-            <div class="geoloc-assist-box">
-              <div class="gps-required-banner" id="gps-required-banner">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-                  ></path>
-                  <line x1="12" y1="9" x2="12" y2="13"></line>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-                Veuillez activer votre localisation pour une inscription
-                précise.
-              </div>
-              <div class="geoloc-header">
-                <label
-                  style="
-                    font-size: 0.9rem;
-                    font-weight: 700;
-                    color: var(--text-primary);
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                  "
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    style="color: var(--primary)"
-                  >
-                    <path
-                      d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
-                    ></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
-                  Géolocalisation Intelligente
-                </label>
-                <button
-                  type="button"
-                  id="btn-detect-gps"
-                  class="btn btn-secondary"
-                  style="
-                    padding: 0.4rem 0.8rem;
-                    font-size: 0.8rem;
-                    height: auto;
-                  "
-                  onclick="detectGeolocation()"
-                >
-                  Détecter ma position
-                </button>
-              </div>
-              <div
-                id="gps-status"
-                class="gps-pulse-container"
-                style="display: none"
-              >
-                <span class="pulse-dot"></span>
-                <span id="gps-status-text">Recherche GPS...</span>
-              </div>
-              <!-- Google Maps Embed -->
-              <div id="map-container">
-                <iframe
-                  id="gmap-iframe"
-                  width="100%"
-                  height="220"
-                  frameborder="0"
-                  style="border: 0; filter: invert(90%) hue-rotate(180deg)"
-                  allowfullscreen
-                  loading="lazy"
-                  referrerpolicy="no-referrer-when-downgrade"
-                  src="https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=4.0511,9.7679&zoom=13"
-                >
-                </iframe>
-              </div>
-              <div
-                style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem"
-              >
-                <div class="form-group" style="margin-bottom: 0">
-                  <label for="reg-ville" style="font-size: 0.8rem">Ville</label>
-                  <input
-                    type="text"
-                    id="reg-ville"
-                    class="form-control"
-                    placeholder="Douala"
-                    required
-                  />
-                </div>
-                <div class="form-group" style="margin-bottom: 0">
-                  <label for="reg-quartier" style="font-size: 0.8rem"
-                    >Quartier</label
-                  >
-                  <input
-                    type="text"
-                    id="reg-quartier"
-                    class="form-control"
-                    placeholder="Akwa"
-                    required
-                  />
-                </div>
-              </div>
-              <!-- Coordonnées visibles mais disabled -->
-              <div class="coord-row">
-                <div class="form-group" style="margin-bottom: 0">
-                  <label style="font-size: 0.75rem; color: var(--text-muted)"
-                    >Latitude</label
-                  >
-                  <input
-                    type="text"
-                    id="reg-lat"
-                    class="form-control"
-                    value="4.0511"
-                    disabled
-                  />
-                </div>
-                <div class="form-group" style="margin-bottom: 0">
-                  <label style="font-size: 0.75rem; color: var(--text-muted)"
-                    >Longitude</label
-                  >
-                  <input
-                    type="text"
-                    id="reg-lng"
-                    class="form-control"
-                    value="9.7679"
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="reg-password">Mot de passe</label>
-              <div class="input-icon-group">
-                <svg
-                  class="input-icon-svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect
-                    x="3"
-                    y="11"
-                    width="18"
-                    height="11"
-                    rx="2"
-                    ry="2"
-                  ></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-                <input
-                  type="password"
-                  id="reg-password"
-                  class="form-control"
-                  placeholder="Min. 6 caractères"
-                  required
-                  minlength="6"
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              class="btn btn-primary"
-              style="width: 100%; margin-top: 1.5rem; height: 3rem"
-            >
-              Créer mon compte
-            </button>
-          </form>
-        </div>
-
-        <!-- VÉRIFICATION CNI -->
-        <div id="cni-verification-container" style="display: none">
-          <h2 class="auth-title">Vérification de Sécurité</h2>
-          <p class="auth-subtitle">
-            Conformément aux normes DGSN, validez vos pièces pour publier ou
-            postuler.
-          </p>
+    <!-- ÉCRAN INSCRIPTION -->
+    <div id="register-container" class="glass-panel auth-box" style="display: none;">
+      <h2 class="auth-title">Inscription</h2>
+      <p class="auth-subtitle">Rejoignez la plus grande plateforme de micro-missions au Cameroun</p>
+      
+      <form id="register-form">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
-            <label
-              style="font-weight: 600; margin-bottom: 0.5rem; display: block"
-              >1. Photo de votre CNI (Recto/Verso)</label
-            >
-            <div
-              id="cni-box"
-              class="scanner-box"
-              onclick="triggerUpload('cni-file')"
-            >
-              <div class="scanner-laser"></div>
-              <div
-                class="scanner-placeholder"
-                style="text-align: center; padding: 1rem"
-              >
-                <svg
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  style="
-                    color: var(--primary);
-                    margin: 0 auto 0.5rem;
-                    display: block;
-                  "
-                >
-                  <rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect>
-                  <line x1="7" y1="8" x2="17" y2="8"></line>
-                  <line x1="7" y1="12" x2="17" y2="12"></line>
-                  <line x1="7" y1="16" x2="13" y2="16"></line>
-                </svg>
-                <span style="font-weight: 500; font-size: 0.9rem"
-                  >Cliquez pour uploader la CNI</span
-                >
-              </div>
-              <img id="cni-preview" alt="Aperçu CNI" />
-            </div>
-            <input
-              type="file"
-              id="cni-file"
-              style="display: none"
-              accept="image/*"
-              onchange="previewImage(this, 'cni')"
-            />
+            <label for="reg-nom">Nom</label>
+            <input type="text" id="reg-nom" class="form-control" placeholder="Fouda" required>
           </div>
-          <div class="form-group" style="margin-top: 1.5rem">
-            <label style="font-weight:600; margin-bottom:0.5rem; display:block">
-              2. Selfie — Caméra Frontale
-            </label>
-            <!-- Vue caméra live -->
-            <div id="selfie-camera-view" style="display:none; position:relative; border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--border-glass);">
-              <video id="selfie-video" autoplay playsinline muted style="width:100%; display:block; transform:scaleX(-1);"></video>
-              <div style="position:absolute;inset:0;pointer-events:none;">
-                <div style="position:absolute;top:12px;left:12px;width:32px;height:32px;border-top:3px solid var(--primary);border-left:3px solid var(--primary);border-radius:4px 0 0 0;"></div>
-                <div style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-top:3px solid var(--primary);border-right:3px solid var(--primary);border-radius:0 4px 0 0;"></div>
-                <div style="position:absolute;bottom:52px;left:12px;width:32px;height:32px;border-bottom:3px solid var(--primary);border-left:3px solid var(--primary);border-radius:0 0 0 4px;"></div>
-                <div style="position:absolute;bottom:52px;right:12px;width:32px;height:32px;border-bottom:3px solid var(--primary);border-right:3px solid var(--primary);border-radius:0 0 4px 0;"></div>
-                <svg style="position:absolute;top:10%;left:50%;transform:translateX(-50%);opacity:0.3;width:50%;max-width:140px" viewBox="0 0 140 175" fill="none">
-                  <ellipse cx="70" cy="87" rx="62" ry="80" stroke="var(--primary)" stroke-width="2" stroke-dasharray="6 4"/>
-                </svg>
-              </div>
-              <div style="position:absolute;bottom:0;left:0;right:0;padding:8px;background:rgba(0,0,0,0.55);text-align:center;font-size:0.75rem;color:var(--text-secondary);">
-                Centrez votre visage dans l'ellipse
-              </div>
-            </div>
-            <!-- Contrôles caméra -->
-            <div style="margin-top:0.75rem;display:flex;gap:8px;">
-              <button type="button" id="btn-open-camera" onclick="openFrontCamera()" class="btn btn-secondary"
-                style="flex:1;height:2.6rem;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                Activer la caméra frontale
-              </button>
-              <button type="button" id="btn-capture-selfie" onclick="captureSelfie()" class="btn btn-primary"
-                style="flex:1;height:2.6rem;font-size:0.85rem;display:none;align-items:center;justify-content:center;gap:6px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
-                Prendre le selfie
-              </button>
-            </div>
-            <!-- Aperçu après capture -->
-            <div id="selfie-box" class="scanner-box" style="display:none;cursor:default;margin-top:0.75rem;">
-              <div class="scanner-laser"></div>
-              <img id="selfie-preview" alt="Selfie" style="display:block;width:100%;border-radius:var(--radius-md);" />
-            </div>
-            <button type="button" id="btn-retake-selfie" onclick="retakeSelfie()"
-              style="display:none;margin-top:0.5rem;background:none;border:1px solid var(--border-glass);color:var(--text-secondary);border-radius:var(--radius-sm);padding:0.4rem 1rem;font-size:0.8rem;cursor:pointer;width:100%;">
-              🔄 Reprendre le selfie
-            </button>
-            <canvas id="selfie-canvas" style="display:none;"></canvas>
-          </div>
-
-          <div id="step-logs" class="step-log">
-            <div id="log-1" class="step-log-item">
-              &#9881; Connexion sécurisée aux serveurs DGSN Cameroun...
-            </div>
-            <div id="log-2" class="step-log-item">
-              &#9881; Lancement de l'OCR CNI...
-            </div>
-            <div id="log-3" class="step-log-item">
-              &#9881; Vérification de sécurité (hologrammes)...
-            </div>
-            <div id="log-4" class="step-log-item">
-              &#9881; Calcul biométrique des repères faciaux...
-            </div>
-            <div id="log-5" class="step-log-item">
-              &#9881; Analyse finale et calcul de similarité...
-            </div>
-          </div>
-          <div id="verify-results" class="simulated-results">
-            <h4>IDENTITÉ VÉRIFIÉE À 100%</h4>
-            <div class="result-row" style="margin-top: 0.75rem">
-              <span>Numéro de CNI extrait :</span><span id="res-cni">...</span>
-            </div>
-            <div class="result-row">
-              <span>Nom extrait de la carte :</span
-              ><span id="res-nom">...</span>
-            </div>
-            <div class="result-row">
-              <span>Correspondance faciale :</span
-              ><span id="res-score" style="color: var(--primary)">...</span>
-            </div>
-            <div class="result-row" style="align-items:center;">
-              <span>Statut DGSN :</span>
-              <span id="dgsn-status-badge" style="display:inline-flex;align-items:center;gap:6px;">
-                <span id="dgsn-pulse" style="width:8px;height:8px;background:var(--primary);border-radius:50%;display:inline-block;box-shadow:0 0 0 0 rgba(34,197,94,0.6);animation:dgsn-pulse 1.4s infinite;"></span>
-                <span id="dgsn-status-text" style="color:var(--primary);font-weight:800;letter-spacing:1px;font-size:0.85rem;">CONNEXION...</span>
-              </span>
-            </div>
-            <style>
-              @keyframes dgsn-pulse {
-                0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
-                70%  { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
-                100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
-              }
-              @keyframes dgsn-verified-pop {
-                0%   { transform: scale(0.7); opacity:0; }
-                60%  { transform: scale(1.15); }
-                100% { transform: scale(1); opacity:1; }
-              }
-        
-      /* ── Tab indicator sliding pill ── */
-      .auth-tabs {
-        position: relative;
-      }
-      .tab-pill {
-        position: absolute;
-        top: 0.25rem;
-        bottom: 0.25rem;
-        width: calc(50% - 0.25rem);
-        background: var(--primary);
-        border-radius: var(--radius-sm);
-        box-shadow: 0 4px 15px rgba(34,197,94,0.35);
-        transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-        z-index: 0;
-        pointer-events: none;
-      }
-      .tab-pill.right { transform: translateX(calc(100% + 0.25rem)); }
-      .auth-tab {
-        position: relative;
-        z-index: 1;
-        transition: color 0.25s ease;
-      }
-      .auth-tab.active { background: transparent !important; box-shadow: none !important; color: #fff; }
-      .auth-tab:not(.active) { color: var(--text-secondary); }
-
-    
-      #login-container,
-      #register-container {
-        animation: none;
-      }
-      @keyframes slideInLeft {
-        from { opacity: 0; transform: translateX(-24px); }
-        to   { opacity: 1; transform: translateX(0); }
-      }
-      @keyframes slideInRight {
-        from { opacity: 0; transform: translateX(24px); }
-        to   { opacity: 1; transform: translateX(0); }
-      }
-      .slide-in-left  { animation: slideInLeft  0.3s cubic-bezier(0.22,1,0.36,1) both; }
-      .slide-in-right { animation: slideInRight 0.3s cubic-bezier(0.22,1,0.36,1) both; }
-
-    
-      .form-control:focus {
-        outline: none;
-        border-color: var(--primary) !important;
-        box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
-        transition: border-color 0.2s, box-shadow 0.2s;
-      }
-    
-      .btn-loading {
-        position: relative;
-        pointer-events: none;
-        opacity: 0.85;
-      }
-      .btn-loading::after {
-        content: '';
-        position: absolute;
-        right: 1rem; top: 50%;
-        transform: translateY(-50%);
-        width: 16px; height: 16px;
-        border: 2px solid rgba(255,255,255,0.4);
-        border-top-color: #fff;
-        border-radius: 50%;
-        animation: spin 0.7s linear infinite;
-      }
-      @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
-    </style>
-            <button
-              onclick="finishVerificationFlow()"
-              class="btn btn-primary"
-              style="width: 100%; margin-top: 1.5rem; height: 3rem"
-            >
-              Accéder à la plateforme
-            </button>
+          <div class="form-group">
+            <label for="reg-prenom">Prénom</label>
+            <input type="text" id="reg-prenom" class="form-control" placeholder="Jean" required>
           </div>
         </div>
+
+        <div class="form-group">
+          <label for="reg-email">Adresse Email</label>
+          <input type="email" id="reg-email" class="form-control" placeholder="jean.fouda@mail.cm" required>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-tel">Numéro de téléphone</label>
+          <input type="tel" id="reg-tel" class="form-control" placeholder="+237 6xx xx xx xx" required>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-type">Type d'utilisateur</label>
+          <select id="reg-type" class="form-control" required>
+            <option value="Candidat">Candidat (Recherche d'emploi / Micro-missions)</option>
+            <option value="Recruteur">Recruteur / Entreprise (Publication d'offres)</option>
+            <option value="Particulier">Particulier (Besoin d'un service ponctuel)</option>
+          </select>
+        </div>
+
+        <!-- ESPACE DE GEOLOCALISATION AUTO -->
+        <div class="geoloc-container" style="margin-bottom: 1.25rem; padding: 1rem; border: 1px dashed var(--border-glass); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.01);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; gap: 5px;">
+              📍 Géolocalisation Cameroun
+            </span>
+            <button type="button" onclick="detectUserLocation()" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; border-radius: 5px;">
+              Re-détecter
+            </button>
+          </div>
+          <div id="geoloc-loader" style="font-size: 0.8rem; color: var(--secondary); display: none; align-items: center; gap: 8px;">
+            <span class="spinner-small"></span> <span>Récupération GPS en cours...</span>
+          </div>
+          <p id="geoloc-status" style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0;">
+            Position non détectée. Cliquez sur re-détecter ou saisissez manuellement ci-dessous.
+          </p>
+          <div style="text-align: right; margin-top: 5px;">
+            <span onclick="enableManualLocationInput()" style="font-size: 0.75rem; color: var(--primary); cursor: pointer; text-decoration: underline;">
+              Saisir manuellement
+            </span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="reg-ville">Ville</label>
+            <input type="text" id="reg-ville" class="form-control" placeholder="Ex: Douala" required readonly style="background: rgba(255,255,255,0.02); cursor: not-allowed;">
+          </div>
+          <div class="form-group">
+            <label for="reg-quartier">Quartier</label>
+            <input type="text" id="reg-quartier" class="form-control" placeholder="Ex: Akwa" required readonly style="background: rgba(255,255,255,0.02); cursor: not-allowed;">
+          </div>
+        </div>
+
+        <!-- Coordonnées GPS réelles/simulées (masquées par défaut mais soumises) -->
+        <input type="hidden" id="reg-lat" value="4.0511">
+        <input type="hidden" id="reg-lng" value="9.7679">
+
+        <div class="form-group">
+          <label for="reg-password">Mot de passe</label>
+          <input type="password" id="reg-password" class="form-control" placeholder="Min. 6 caractères" required minlength="6">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">S'inscrire</button>
+      </form>
+
+      <div class="switch-mode">
+        Vous avez déjà un compte ? <a href="#" onclick="toggleMode('login')">Se connecter</a>
       </div>
     </div>
 
-    <script src="/js/common.js"></script>
-    <script src="/js/auth.js"></script>
-    <script>
-      window.addEventListener("load", () => {
-        setTimeout(
-          () => document.getElementById("page-loader").classList.add("hidden"),
-          400,
-        );
-      });
+    <!-- ÉCRAN VÉRIFICATION CNI BIOMÉTRIQUE -->
+    <div id="cni-verification-container" class="glass-panel auth-box" style="display: none;">
+      <h2 class="auth-title">Vérification CNI</h2>
+      <p class="auth-subtitle">Sécurité 100% : Faites valider vos pièces pour publier ou postuler</p>
+      
+      <div class="form-group">
+        <label>1. Photo de votre Carte Nationale d'Identité (Recto/Verso)</label>
+        <div id="cni-box" class="scanner-box" onclick="triggerUpload('cni-file')">
+          <div class="scanner-laser"></div>
+          <div class="scanner-placeholder" style="text-align: center;">
+            <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">🪪</span>
+            <span>Cliquez pour charger la photo CNI</span>
+          </div>
+          <img id="cni-preview" alt="Aperçu CNI">
+        </div>
+        <input type="file" id="cni-file" style="display: none;" accept="image/*" onchange="previewImage(this, 'cni')">
+      </div>
 
-      const GOOGLE_API_KEY = '';
+      <div class="form-group">
+        <label>2. Selfie de Contrôle Facial</label>
+        <div id="selfie-box" class="scanner-box" onclick="triggerUpload('selfie-file')">
+          <div class="scanner-laser"></div>
+          <div class="scanner-placeholder" style="text-align: center;">
+            <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">📸</span>
+            <span>Cliquez pour charger votre selfie</span>
+          </div>
+          <img id="selfie-preview" alt="Aperçu Selfie">
+        </div>
+        <input type="file" id="selfie-file" style="display: none;" accept="image/*" onchange="previewImage(this, 'selfie')">
+      </div>
 
-      function detectGeolocation() {
-        const statusDiv = document.getElementById("gps-status");
-        const statusText = document.getElementById("gps-status-text");
-        const btn = document.getElementById("btn-detect-gps");
-        btn.disabled = true;
-        statusDiv.style.display = "flex";
-        statusText.innerText = "Interrogation du capteur GPS...";
+      <button id="btn-start-verify" onclick="startBiometricVerification()" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">
+        Démarrer l'analyse d'identité
+      </button>
 
-        if (!navigator.geolocation) {
-          statusText.innerText = "GPS non supporté.";
-          btn.disabled = false;
-          return;
-        }
+      <!-- Logs d'exécution dynamiques (Console biométrique) -->
+      <div id="step-logs" class="step-log">
+        <div id="log-1" class="step-log-item"><span>⚙️</span> Initialisation de la caméra et chargement des modèles...</div>
+        <div id="log-2" class="step-log-item"><span>⚙️</span> Lancement de l'extraction de texte OCR CNI...</div>
+        <div id="log-3" class="step-log-item"><span>⚙️</span> Vérification des hologrammes République du Cameroun...</div>
+        <div id="log-4" class="step-log-item"><span>⚙️</span> Calcul des repères géométriques faciaux (Selfie)...</div>
+        <div id="log-5" class="step-log-item"><span>⚙️</span> Analyse de correspondance et calcul de similarité...</div>
+      </div>
 
-        navigator.geolocation.getCurrentPosition(
-          async (pos) => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            document.getElementById("reg-lat").value = lat.toFixed(6);
-            document.getElementById("reg-lng").value = lng.toFixed(6);
+      <!-- Résultats simulés -->
+      <div id="verify-results" class="simulated-results">
+        <h4>✅ IDENTITÉ VÉRIFIÉE À 100%</h4>
+        <div class="result-row">
+          <span>Numéro de CNI extrait :</span>
+          <span id="res-cni">...</span>
+        </div>
+        <div class="result-row">
+          <span>Nom extrait de la carte :</span>
+          <span id="res-nom">...</span>
+        </div>
+        <div class="result-row">
+          <span>Correspondance faciale :</span>
+          <span id="res-score" style="color: var(--primary);">...</span>
+        </div>
+        <div class="result-row">
+          <span>Statut :</span>
+          <span style="color: var(--primary); font-weight: bold;">VERIFIED</span>
+        </div>
+        
+        <button onclick="finishVerificationFlow()" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; background: var(--primary);">
+          Accéder à la plateforme
+        </button>
+      </div>
 
-            // Mise à jour de la carte Google Maps
-            document.getElementById("gmap-iframe").src =
-              `https://www.google.com/maps/embed/v1/view?key=${GOOGLE_API_KEY}&center=${lat},${lng}&zoom=17`;
+    </div>
 
-            statusText.innerText = `GPS trouvé (${lat.toFixed(4)}, ${lng.toFixed(4)}) — Reverse geocoding...`;
+  </div>
 
-            try {
-              // Google Maps Geocoding API (précis, supporte les quartiers camerounais)
-              const resp = await fetch(
-                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}&language=fr&region=cm`
-              );
-              const geoData = await resp.json();
-
-              let ville = '', quartier = '';
-
-              if (geoData.status === 'OK' && geoData.results.length > 0) {
-                // Parcourir les composants d'adresse du résultat le plus précis
-                const components = geoData.results[0].address_components;
-
-                for (const comp of components) {
-                  if (comp.types.includes('locality') || comp.types.includes('administrative_area_level_2')) {
-                    if (!ville) ville = comp.long_name;
-                  }
-                  if (comp.types.includes('sublocality') || comp.types.includes('sublocality_level_1') ||
-                      comp.types.includes('neighborhood') || comp.types.includes('political')) {
-                    if (!quartier) quartier = comp.long_name;
-                  }
-                }
-
-                // Fallback : prendre depuis les résultats de niveau supérieur
-                if (!ville) {
-                  for (const result of geoData.results) {
-                    for (const comp of result.address_components) {
-                      if (!ville && (comp.types.includes('locality') || comp.types.includes('administrative_area_level_2'))) {
-                        ville = comp.long_name;
-                      }
-                      if (!quartier && (comp.types.includes('neighborhood') || comp.types.includes('sublocality'))) {
-                        quartier = comp.long_name;
-                      }
-                    }
-                  }
-                }
-
-                if (!ville) ville = 'Douala';
-                if (!quartier) quartier = geoData.results[0].formatted_address.split(',')[0] || 'Centre';
-              } else {
-                ville = 'Douala';
-                quartier = 'Akwa';
-              }
-
-              document.getElementById("reg-ville").value = ville;
-              document.getElementById("reg-quartier").value = quartier;
-              statusText.innerHTML = `<span style="color:var(--primary)">✅ ${quartier}, ${ville}</span>`;
-              btn.disabled = false;
-              showToast(`Localisation Google Maps : ${quartier}, ${ville}`, 'success');
-
-            } catch (err) {
-              console.error('Erreur Geocoding:', err);
-              document.getElementById("reg-ville").value = 'Douala';
-              document.getElementById("reg-quartier").value = 'Akwa';
-              statusText.innerHTML = '<span style="color:var(--secondary)">Geocoding échoué — saisie manuelle</span>';
-              btn.disabled = false;
-            }
-          },
-          (err) => {
-            console.warn('GPS refusé:', err.message);
-            statusText.innerText = "GPS refusé — saisie manuelle.";
-            btn.disabled = false;
-          },
-          { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-        );
-      }
-    </script>
-  </body>
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
 </html>

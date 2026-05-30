@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const jobSchema = new mongoose.Schema({
   titre: {
     type: String,
-    required: [true, 'Le titre de l\'offre est obligatoire'],
+    required: [true, "Le titre de l'offre est obligatoire"],
     trim: true
   },
   description: {
     type: String,
-    required: [true, 'La description de l\'offre est obligatoire']
+    required: [true, "La description de l'offre est obligatoire"]
   },
   type: {
     type: String,
@@ -17,7 +17,7 @@ const jobSchema = new mongoose.Schema({
   },
   domaine: {
     type: String,
-    required: [true, 'Le domaine d\'activité est obligatoire'],
+    required: [true, "Le domaine d'activité est obligatoire"],
     trim: true
   },
   budget: {
@@ -26,22 +26,10 @@ const jobSchema = new mongoose.Schema({
     min: [0, 'Le budget ne peut pas être négatif']
   },
   localisation: {
-    ville: {
-      type: String,
-      required: [true, 'La ville est obligatoire']
-    },
-    quartier: {
-      type: String,
-      required: [true, 'Le quartier est obligatoire']
-    },
-    latitude: {
-      type: Number,
-      required: [true, 'La latitude GPS est obligatoire']
-    },
-    longitude: {
-      type: Number,
-      required: [true, 'La longitude GPS est obligatoire']
-    }
+    ville:     { type: String, required: [true, 'La ville est obligatoire'] },
+    quartier:  { type: String, required: [true, 'Le quartier est obligatoire'] },
+    latitude:  { type: Number, required: [true, 'La latitude GPS est obligatoire'] },
+    longitude: { type: Number, required: [true, 'La longitude GPS est obligatoire'] }
   },
   statut: {
     type: String,
@@ -57,8 +45,10 @@ const jobSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Création d'index pour optimiser la recherche de proximité et de filtres textuels
+// Index pour la recherche géographique et les filtres
 jobSchema.index({ 'localisation.ville': 1, 'localisation.quartier': 1 });
 jobSchema.index({ type: 1, domaine: 1, budget: 1 });
+// AJOUT : index pour les filtres fréquents par statut et date
+jobSchema.index({ statut: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Job', jobSchema);

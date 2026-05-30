@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: [true, 'L\'adresse email est obligatoire'],
+    required: [true, "L'adresse email est obligatoire"],
     unique: true,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
@@ -27,63 +27,43 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Le mot de passe est obligatoire'],
     minlength: 6,
-    select: false // Ne pas retourner le mot de passe par défaut
+    select: false
   },
   type: {
     type: String,
     enum: ['Candidat', 'Recruteur', 'Particulier'],
-    required: [true, 'Le type d\'utilisateur est obligatoire']
+    required: [true, "Le type d'utilisateur est obligatoire"]
   },
-  // Statut de vérification de la CNI
   cniStatus: {
     type: String,
     enum: ['Not_Submitted', 'Pending', 'Verified', 'Rejected'],
     default: 'Not_Submitted'
   },
-  // Données de simulation biométrique & OCR CNI
+  // CORRECTION : ne pas stocker les photos base64 en DB — on stocke uniquement les métadonnées
   biometrics: {
-    cniNumber: { type: String, default: null },
-    cniPhoto: { type: String, default: null }, // Stockage base64 de l'image CNI
-    selfiePhoto: { type: String, default: null }, // Stockage base64 du selfie
-    faceMatchScore: { type: Number, default: 0 }, // Score de comparaison faciale (%)
-    verifiedAt: { type: Date, default: null },
-    rejectionReason: { type: String, default: null }
+    cniNumber:       { type: String,  default: null },
+    faceMatchScore:  { type: Number,  default: 0 },
+    verifiedAt:      { type: Date,    default: null },
+    rejectionReason: { type: String,  default: null }
   },
-  // Géolocalisation
   geoloc: {
-    ville: {
-      type: String,
-      required: [true, 'La ville est obligatoire']
-    },
-    quartier: {
-      type: String,
-      required: [true, 'Le quartier est obligatoire']
-    },
-    latitude: {
-      type: Number,
-      required: [true, 'La latitude GPS est obligatoire']
-    },
-    longitude: {
-      type: Number,
-      required: [true, 'La longitude GPS est obligatoire']
-    }
+    ville:     { type: String, required: [true, 'La ville est obligatoire'] },
+    quartier:  { type: String, required: [true, 'Le quartier est obligatoire'] },
+    latitude:  { type: Number, required: [true, 'La latitude GPS est obligatoire'] },
+    longitude: { type: Number, required: [true, 'La longitude GPS est obligatoire'] }
   }
 }, {
   timestamps: true
 });
 
-// Méthode pour crypter le mot de passe avant sauvegarde
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    next();
-  }
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Méthode pour vérifier la correspondance du mot de passe
-userSchema.methods.matchPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return bcrypt.compare(enteredPassword, this.password);
 };
 
 module.exports = mongoose.model('User', userSchema);

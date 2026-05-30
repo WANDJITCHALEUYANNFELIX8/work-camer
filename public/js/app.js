@@ -1,23 +1,263 @@
 let jobsData = [];
 let selectedJobId = null;
 
-// Charger les offres au chargement de la page
+// Charger le portail et les offres au chargement de la page
 document.addEventListener('DOMContentLoaded', () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const domaineParam = urlParams.get('domaine');
-  
-  if (domaineParam) {
-    const selectDomaine = document.getElementById('filter-domaine');
-    if (selectDomaine) {
-      selectDomaine.value = domaineParam;
-    }
-    applyFilters();
-  } else {
-    loadJobs();
+  const user = getUser();
+  if (!user) {
+    window.location.href = '/auth.html';
+    return;
   }
+
+  // Remplir les informations utilisateur
+  document.getElementById('user-display-name').innerText = `${user.prenom} ${user.nom}`;
+  document.getElementById('user-role-text').innerText = user.type;
+
+  // Gérer l'état de vérification CNI
+  const cniIndicator = document.getElementById('cni-status-indicator');
+  if (user.cniStatus === 'Verified') {
+    cniIndicator.className = 'cni-status-indicator verified';
+    cniIndicator.innerHTML = '🛡️ Identité CNI Vérifiée par la DGSN 🟢';
+  } else if (user.cniStatus === 'Pending') {
+    cniIndicator.className = 'cni-status-indicator pending';
+    cniIndicator.innerHTML = '⏳ Vérification biométrique en cours... 🟡';
+  } else {
+    cniIndicator.className = 'cni-status-indicator not-submitted';
+    cniIndicator.innerHTML = '⚠️ Identité non vérifiée - Cliquer ici pour valider 🔴';
+    cniIndicator.style.cursor = 'pointer';
+    cniIndicator.onclick = () => {
+      window.location.href = '/auth.html';
+    };
+  }
+
+  // Adapter les statistiques selon le rôle
+  if (user.type === 'Candidat') {
+    document.getElementById('stat-label-primary').innerText = 'Candidatures envoyées';
+    document.getElementById('stat-label-secondary').innerText = 'Discussions actives';
+  } else {
+    document.getElementById('stat-label-primary').innerText = 'Offres publiées';
+    document.getElementById('stat-label-secondary').innerText = 'Candidats inscrits';
+    
+    // Masquer le bouton de recherche pour le recruteur car il n'en a pas besoin en priorité
+    const btnToggle = document.getElementById('btn-toggle-jobs');
+    btnToggle.innerText = '📋 Gérer mes offres d\'emploi';
+    btnToggle.onclick = () => {
+      window.location.href = '/dashboard.html';
+    };
+  }
+
+  // Charger les données du dashboard portal
+  loadDashboardStats();
+  loadNotifications();
+  loadRecentDiscussions();
+
+  // Écouter les nouvelles notifications via l'événement global
+  window.addEventListener('new_notification', (e) => {
+    loadDashboardStats();
+    loadNotifications();
+    loadRecentDiscussions();
+  });
 });
 
-// Appeler l'API pour récupérer les jobs avec filtres
+// --- CHARGER LES STATISTIQUES DU PORTAIL ---
+async function loadDashboardStats() {
+  try {
+    const user = getUser();
+    if (!user) return;
+
+    let primaryCount = 0;
+    let secondaryCount = 0;
+    let tertiaryCount = 0;
+
+    // Charger les notifications non lues pour le troisième widget
+    const notifData = await apiCall('/notifications', { method: 'GET' });
+    tertiaryCount = notifData.notifications.filter(n => !n.lu).length;
+    document.getElementById('stat-count-tertiary').innerText = tertiaryCount;
+
+    if (user.type === 'Candidat') {
+      // Candidat: Mes candidatures et discussions actives
+      const subData = await apiCall('/applications/my/submissions', { method: 'GET' });
+      primaryCount = subData.submissions.length;
+
+      const chatData = await apiCall('/messages/active/chats', { method: 'GET' });
+      secondaryCount = chatData.chats.length;
+    } else {
+      // Recruteur: Mes offres et candidatures reçues
+      const offersData = await apiCall('/jobs/my/offers', { method: 'GET' });
+      primaryCount = offersData.jobs.length;
+
+      // Boucler sur chaque offre pour compter le total des candidatures reçues
+      for (const job of offersData.jobs) {
+        try {
+          const appData = await apiCall(`/applications/job/${job._id}`, { method: 'GET' });
+          secondaryCount += appData.applications.length;
+        } catch (err) {
+          console.error('Erreur comptage candidatures pour job:', job._id, err.message);
+        }
+      }
+    }
+
+    document.getElementById('stat-count-primary').innerText = primaryCount;
+    document.getElementById('stat-count-secondary').innerText = secondaryCount;
+
+  } catch (error) {
+    console.error('Erreur chargement statistiques portal :', error.message);
+  }
+}
+
+// --- CHARGER LE CENTRE DE NOTIFICATIONS ---
+async function loadNotifications() {
+  try {
+    const list = document.getElementById('notifications-list');
+    const data = await apiCall('/notifications', { method: 'GET' });
+    const notifications = data.notifications;
+
+    list.innerHTML = '';
+
+    if (notifications.length === 0) {
+      list.innerHTML = '<p class="empty-state">Aucune notification pour le moment.</p>';
+      return;
+    }
+
+    notifications.forEach(notif => {
+      const item = document.createElement('div');
+      item.className = `notification-item ${notif.lu ? 'read' : 'unread'}`;
+      item.onclick = () => readNotification(notif._id, notif.lien);
+
+      let icon = '🔔';
+      if (notif.type === 'application_status') icon = '💼';
+      if (notif.type === 'new_application') icon = '📥';
+      if (notif.type === 'new_message') icon = '💬';
+      if (notif.type === 'cni_verified') icon = '🛡️';
+
+      const timeStr = new Date(notif.createdAt).toLocaleDateString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      item.innerHTML = `
+        <span class="notif-icon">${icon}</span>
+        <div class="notif-content">
+          <p class="notif-text">${notif.texte}</p>
+          <span class="notif-time">${timeStr}</span>
+        </div>
+        ${!notif.lu ? '<span class="unread-dot"></span>' : ''}
+      `;
+      list.appendChild(item);
+    });
+  } catch (error) {
+    console.error('Erreur chargement notifications:', error.message);
+  }
+}
+
+// --- LIRE UNE NOTIFICATION ---
+async function readNotification(id, lien) {
+  try {
+    await apiCall(`/notifications/${id}/read`, { method: 'PUT' });
+    updateUnreadNotifBadge();
+    
+    if (lien) {
+      window.location.href = lien;
+    } else {
+      loadNotifications();
+      loadDashboardStats();
+    }
+  } catch (error) {
+    console.error('Erreur lecture notification:', error.message);
+  }
+}
+
+// --- TOUT MARQUER COMME LU ---
+async function markAllNotificationsAsRead() {
+  try {
+    await apiCall('/notifications/read-all', { method: 'PUT' });
+    showToast('Toutes les notifications sont lues', 'success');
+    updateUnreadNotifBadge();
+    loadNotifications();
+    loadDashboardStats();
+  } catch (error) {
+    showToast(error.message, 'error');
+  }
+}
+
+// --- TOUT EFFACER ---
+async function clearAllNotifications() {
+  try {
+    await apiCall('/notifications', { method: 'DELETE' });
+    showToast('Historique des notifications effacé', 'success');
+    updateUnreadNotifBadge();
+    loadNotifications();
+    loadDashboardStats();
+  } catch (error) {
+    showToast(error.message, 'error');
+  }
+}
+
+// --- CHARGER LES DISCUSSIONS RECENTES (MINI-CHAT) ---
+async function loadRecentDiscussions() {
+  try {
+    const list = document.getElementById('mini-chat-list');
+    const data = await apiCall('/messages/active/chats', { method: 'GET' });
+    const chats = data.chats;
+
+    list.innerHTML = '';
+
+    if (chats.length === 0) {
+      list.innerHTML = '<p class="empty-state">Aucun échange récent.</p>';
+      return;
+    }
+
+    // Afficher les 4 plus récents
+    chats.slice(0, 4).forEach(chat => {
+      const c = chat.contact;
+      const lastMsg = chat.lastMessage;
+      const item = document.createElement('div');
+      item.className = 'mini-chat-item';
+      item.onclick = () => window.location.href = `/chat.html?contact=${c._id}`;
+
+      const text = lastMsg ? lastMsg.texte : 'Débuter la discussion';
+      const truncated = text.length > 35 ? text.substring(0, 35) + '...' : text;
+
+      item.innerHTML = `
+        <div class="avatar">${c.prenom[0]}${c.nom[0]}</div>
+        <div class="details">
+          <h4>${c.prenom} ${c.nom} <span class="role-pill">${c.type}</span></h4>
+          <p>${truncated}</p>
+        </div>
+        <span class="chevron">➔</span>
+      `;
+      list.appendChild(item);
+    });
+  } catch (error) {
+    console.error('Erreur chargement discussions récentes:', error.message);
+  }
+}
+
+// --- AFFICHER / MASQUER LA RECHERCHE DE JOBS ---
+function toggleJobsSection() {
+  const section = document.getElementById('jobs-search-section');
+  const btn = document.getElementById('btn-toggle-jobs');
+
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    btn.innerText = ' Masquer la Recherche d\'Offres';
+    btn.className = 'btn btn-secondary';
+    
+    // Charger les offres si vide
+    if (jobsData.length === 0) {
+      loadJobs();
+    }
+    
+    // Scroller vers la section
+    section.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    section.style.display = 'none';
+    btn.innerText = '💼 Afficher les Offres Disponibles';
+    btn.className = 'btn btn-primary';
+  }
+}
+
+// --- APPPELER L'API DES OFFRES D'EMPLOI ---
 async function loadJobs(queryString = '') {
   try {
     const listContainer = document.getElementById('job-list');
@@ -38,38 +278,25 @@ async function loadJobs(queryString = '') {
 
     jobsData.forEach(job => {
       const card = document.createElement('div');
-      let typeClass = 'type-micro';
-      if (job.type === 'Court terme') typeClass = 'type-court';
-      if (job.type === 'Long terme') typeClass = 'type-long';
-      
-      card.className = `glass-panel premium-job-card ${typeClass}`;
+      card.className = 'glass-panel job-card';
       card.onclick = () => openJobModal(job._id);
 
-    
       const formattedBudget = new Intl.NumberFormat('fr-FR').format(job.budget) + ' XAF';
 
       card.innerHTML = `
-        <div class="job-card-header">
-          <div>
-            <span class="type-badge" style="margin-bottom: 0.5rem; display: inline-block;">${job.type}</span>
-            <h3 class="job-card-title">${job.titre}</h3>
-            <p style="font-size: 0.85rem; color: var(--primary); font-weight: 600; margin: 0.25rem 0 0;">${job.domaine}</p>
+        <span class="type-badge">${job.type}</span>
+        <div class="budget-tag">${formattedBudget}</div>
+        <h3 style="margin-top: 0.5rem;">${job.titre}</h3>
+        <p style="font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-bottom: 0.75rem;">${job.domaine}</p>
+        <p class="description">${job.description}</p>
+        <div class="meta">
+          <div class="author">
+            👤 <span>${job.auteur.prenom} ${job.auteur.nom[0]}.</span>
           </div>
-          <div class="budget-tag" style="position: static; font-weight: 800; font-size: 1.1rem; color: var(--primary);">${formattedBudget}</div>
-        </div>
-        <p class="job-card-desc">${job.description}</p>
-        <div class="job-card-footer">
-          <div class="job-card-meta-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user" style="color: var(--text-muted);"><path d="M20 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle></svg>
-            <span>Publié par ${job.auteur.prenom} ${job.auteur.nom[0]}.</span>
-            ${job.auteur.cniStatus === 'Verified' ? '<span class="cni-badge verified" style="font-size: 0.65rem; padding: 0.1rem 0.4rem; margin-left: 4px;">CNI OK</span>' : ''}
-          </div>
-          <div class="job-card-meta-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin" style="color: var(--text-muted);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            <span>${job.localisation.quartier}, ${job.localisation.ville}</span>
-          </div>
+          <div>📍 ${job.localisation.quartier}, ${job.localisation.ville}</div>
         </div>
       `;
+
       listContainer.appendChild(card);
     });
   } catch (error) {
@@ -112,8 +339,6 @@ function openJobModal(jobId) {
   if (!job) return;
 
   selectedJobId = jobId;
-
-  // Formater budget
   const formattedBudget = new Intl.NumberFormat('fr-FR').format(job.budget) + ' XAF';
 
   document.getElementById('modal-job-type').innerText = job.type;
@@ -153,17 +378,14 @@ function openJobModal(jobId) {
         <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
           Pour la sécurité du marché, vous devez valider votre identité avant de postuler.
         </p>
-        <a href="/auth.html" class="btn btn-danger" style="font-size: 0.85rem;">Faire valider ma CNI</a>
+        <button onclick="triggerCniWarning()" class="btn btn-danger" style="font-size: 0.85rem; width: 100%;">
+          Faire valider ma CNI
+        </button>
       </div>
     `;
   } else {
     // Connecté + CNI Validé + Pas l'auteur
     appBlock.innerHTML = `
-      <div style="display:flex; justify-content:center; margin-bottom:1.5rem;">
-        <button class="btn btn-secondary" style="width:100%; border-color: var(--primary);" onclick="window.location.href='/chat.html?contact=${job.auteur._id}'">
-          💬 Contacter le recruteur
-        </button>
-      </div>
       <form id="apply-form" onsubmit="submitApplication(event)">
         <div class="form-group">
           <label for="motivation-input">Message de motivation (Vos compétences, disponibilités, etc.)</label>
@@ -183,6 +405,17 @@ function closeJobModal(e) {
   document.getElementById('job-modal').classList.remove('active');
 }
 
+// Déclencher l'avertissement CNI
+function triggerCniWarning() {
+  closeJobModal();
+  document.getElementById('cni-warning-modal').classList.add('active');
+}
+
+function closeCniWarningModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('cni-warning-modal').classList.remove('active');
+}
+
 // Soumettre une candidature
 async function submitApplication(e) {
   e.preventDefault();
@@ -200,6 +433,9 @@ async function submitApplication(e) {
 
     showToast('Candidature soumise avec succès !', 'success');
     closeJobModal();
+    
+    // Recharger les stats
+    loadDashboardStats();
   } catch (error) {
     showToast(error.message, 'error');
   }

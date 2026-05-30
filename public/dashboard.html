@@ -1,758 +1,225 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tableau de Bord - WorkCamer</title>
-    <link rel="stylesheet" href="/css/styles.css" />
-    <style>
-      /* Loader */
-      .loader-logo-wrap {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        animation: loader-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-      }
-      @keyframes loader-enter {
-        from {
-          opacity: 0;
-          transform: translateY(28px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .loader-bar-track {
-        width: 180px;
-        height: 3px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 99px;
-        overflow: hidden;
-        margin-top: 1.5rem;
-      }
-      .loader-bar-fill {
-        height: 100%;
-        width: 0;
-        background: linear-gradient(90deg, var(--primary), var(--secondary));
-        border-radius: 99px;
-        animation: loader-fill 0.9s ease forwards;
-      }
-      @keyframes loader-fill {
-        to {
-          width: 100%;
-        }
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau de bord - WorkCamer</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    .applicant-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .applicant-card .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .applicant-card .motivation {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      background: rgba(0, 0, 0, 0.1);
+      padding: 0.75rem;
+      border-radius: 6px;
+      border-left: 2px solid var(--primary);
+    }
+    .applicant-card .actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .status-pill {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .status-pill.pending { background: rgba(234, 179, 8, 0.15); color: var(--secondary); }
+    .status-pill.accepted { background: rgba(34, 197, 94, 0.15); color: var(--primary); }
+    .status-pill.rejected { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+  </style>
+</head>
+<body>
 
-      /* Dashboard layout */
-      .dash-wrapper {
-        max-width: 1200px;
-        margin: 2.5rem auto;
-        padding: 0 1.5rem;
-      }
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/index.html" class="logo">
+      WorkCamer <span class="logo-star">★</span>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <!-- Rempli par common.js -->
+    </ul>
+  </nav>
 
-      /* Hero greeting */
-      .dash-hero {
-        text-align: center;
-        padding: 3rem 1rem 2rem;
-        background: radial-gradient(
-          circle at center,
-          rgba(34, 197, 94, 0.07) 0%,
-          transparent 65%
-        );
-      }
-      .dash-greeting {
-        font-size: clamp(2rem, 5vw, 3.2rem);
-        font-weight: 900;
-        letter-spacing: -1.5px;
-        animation: loader-enter 0.6s ease both;
-      }
-      .dash-greeting .name {
-        color: var(--primary);
-      }
-      .dash-greeting .wave {
-        color: var(--secondary);
-        display: inline-block;
-      }
-      .dash-role {
-        font-size: 0.85rem;
-        letter-spacing: 3px;
-        font-weight: 700;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        margin-top: 0.5rem;
-        animation: loader-enter 0.6s ease 0.1s both;
-      }
-      .cni-verified-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(34, 197, 94, 0.12);
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        color: var(--primary);
-        font-size: 0.8rem;
-        font-weight: 700;
-        padding: 0.35rem 1rem;
-        border-radius: 99px;
-        margin-top: 1rem;
-        animation: loader-enter 0.6s ease 0.2s both;
-      }
-      .cni-dot {
-        width: 8px;
-        height: 8px;
-        background: var(--primary);
-        border-radius: 50%;
-        animation: pulse-cni 1.8s infinite;
-      }
-      @keyframes pulse-cni {
-        0% {
-          transform: scale(0.95);
-          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-        }
-        70% {
-          transform: scale(1);
-          box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
-        }
-        100% {
-          transform: scale(0.95);
-          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-        }
-      }
+  <div class="dashboard-container">
+    <h2 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 2rem;">Tableau de bord</h2>
 
-      /* Layout principal dashboard */
-      .dashboard-layout {
-        display: flex;
-        gap: 2rem;
-        margin-top: 2.5rem;
-        flex-direction: column;
-      }
-      @media (min-width: 900px) {
-        .dashboard-layout {
-          flex-direction: row;
-        }
-      }
+    <div class="dashboard-grid">
+      
+      <!-- MENU DE NAVIGATION SIDEBAR -->
+      <aside>
+        <ul class="sidebar-menu" id="dashboard-menu">
+          <!-- Injecté dynamiquement selon le rôle de l'utilisateur -->
+        </ul>
+      </aside>
 
-      /* Sidebar / Tabs */
-      .dash-sidebar {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        gap: 0.5rem;
-        overflow-x: auto;
-        padding-bottom: 0.5rem;
-      }
-      @media (min-width: 900px) {
-        .dash-sidebar {
-          width: 260px;
-          flex-direction: column;
-          flex-shrink: 0;
-          padding-bottom: 0;
-        }
-      }
-      .sidebar-menu {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: row;
-        gap: 0.5rem;
-        width: 100%;
-      }
-      @media (min-width: 900px) {
-        .sidebar-menu {
-          flex-direction: column;
-        }
-      }
-
-      .sidebar-item {
-        padding: 1rem 1.25rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--border-glass);
-        border-radius: var(--radius-md);
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: var(--text-secondary);
-        white-space: nowrap;
-      }
-      .sidebar-item:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: var(--text-primary);
-      }
-      .sidebar-item.active {
-        background: linear-gradient(
-          135deg,
-          rgba(34, 197, 94, 0.2),
-          rgba(34, 197, 94, 0.05)
-        );
-        border-color: var(--primary);
-        color: var(--primary);
-      }
-
-      /* Content Area */
-      .dash-content-area {
-        flex-grow: 1;
-      }
-      .glass-panel {
-        padding: 1.75rem;
-        border-radius: var(--radius-lg);
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--border-glass);
-      }
-      .section-title {
-        font-size: 1.25rem;
-        font-weight: 800;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .section-title .dot {
-        width: 10px;
-        height: 10px;
-        background: var(--primary);
-        border-radius: 50%;
-      }
-
-      /* Tables */
-      .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-      }
-      .data-table th,
-      .data-table td {
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 1px solid var(--border-glass);
-        font-size: 0.9rem;
-      }
-      .data-table th {
-        color: var(--text-muted);
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-      }
-      .data-table tr:hover td {
-        background: rgba(255, 255, 255, 0.02);
-      }
-
-      .status-pill {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-      }
-      .status-pill.pending {
-        background: rgba(234, 179, 8, 0.1);
-        color: #eab308;
-        border: 1px solid rgba(234, 179, 8, 0.2);
-      }
-      .status-pill.accepted {
-        background: rgba(34, 197, 94, 0.1);
-        color: var(--primary);
-        border: 1px solid rgba(34, 197, 94, 0.2);
-      }
-      .status-pill.rejected {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.2);
-      }
-
-      /* Drawer */
-      .side-drawer {
-        position: fixed;
-        top: 0;
-        right: -450px;
-        width: 100%;
-        max-width: 450px;
-        height: 100vh;
-        background: #0b0f19;
-        border-left: 1px solid var(--border-glass);
-        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        transition: right 0.3s ease;
-        display: flex;
-        flex-direction: column;
-      }
-      .side-drawer.active {
-        right: 0;
-      }
-      .drawer-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-glass);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .drawer-header h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin: 0;
-      }
-      .drawer-close {
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        font-size: 1.5rem;
-        cursor: pointer;
-      }
-      .drawer-content {
-        padding: 1.5rem;
-        overflow-y: auto;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .applicant-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--border-glass);
-        border-radius: var(--radius-md);
-        padding: 1.25rem;
-      }
-      .applicant-card .header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.75rem;
-      }
-      .applicant-card .motivation {
-        margin-top: 1rem;
-        padding: 0.75rem;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: var(--radius-sm);
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        font-style: italic;
-      }
-      .applicant-card .actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 1rem;
-      }
-
-      /* No auth state */
-      .auth-required {
-        text-align: center;
-        padding: 5rem 2rem;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- PAGE LOADER -->
-    <div class="page-loader" id="page-loader">
-      <div class="loader-logo-wrap">
-        <div class="loader-text">WorkCamer</div>
-        <div class="loader-sub">Chargement du tableau de bord...</div>
-        <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
-      </div>
-    </div>
-
-    <!-- Navbar -->
-    <nav class="navbar">
-      <a href="/index.html" class="logo"
-        >WorkCamer <span class="logo-star">&#9733;</span></a
-      >
-      <ul class="nav-links" id="nav-links"></ul>
-    </nav>
-
-    <!-- AUTH REQUIRED (shown if not logged in) -->
-    <div class="dash-wrapper" id="auth-required-block" style="display: none">
-      <div class="glass-panel auth-required">
-        <svg
-          width="56"
-          height="56"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          style="color: var(--text-muted); margin-bottom: 1.5rem"
-        >
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-        </svg>
-        <h2>Connexion requise</h2>
-        <p style="color: var(--text-secondary); margin: 0.75rem 0 2rem">
-          Vous devez être connecté pour accéder à votre tableau de bord.
-        </p>
-        <div
-          style="
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-          "
-        >
-          <a href="/auth.html" class="btn btn-primary btn-lg">Se connecter</a>
-          <a href="/auth.html?mode=register" class="btn btn-secondary btn-lg"
-            >Créer un compte</a
-          >
-        </div>
-      </div>
-    </div>
-
-    <!-- DASHBOARD CONTENT -->
-    <div class="dash-wrapper" id="dash-content" style="display: none">
-      <!-- Greeting Hero -->
-      <div class="dash-hero">
-        <div class="dash-greeting">
-          Bonjour,
-          <span class="name" id="dash-name">Utilisateur</span>&nbsp;!&nbsp;<span
-            class="wave"
-            >&#128075;</span
-          >
-        </div>
-        <div class="dash-role" id="dash-role">ESPACE UTILISATEUR</div>
-        <div class="cni-verified-pill" id="dash-cni-badge">
-          <span class="cni-dot"></span>
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          Identité CNI Vérifiée
-          <span class="cni-dot"></span>
-        </div>
-      </div>
-
-      <!-- MAIN DASHBOARD LAYOUT -->
-      <div class="dashboard-layout">
-        <!-- SIDEBAR TABS -->
-        <aside class="dash-sidebar">
-          <ul class="sidebar-menu" id="dashboard-menu">
-            <!-- Filled by dashboard.js dynamically based on user role -->
-          </ul>
-        </aside>
-
-        <!-- CONTENT SECTIONS -->
-        <main class="dash-content-area">
-          <!-- SECTION : ONGOING JOBS -->
-          <section
-            id="section-ongoing"
-            class="glass-panel"
-            style="display: none"
-          >
-            <h2 class="section-title">
-              <span class="dot" style="background: var(--secondary)"></span>
-              Missions en cours
-            </h2>
-            <div style="overflow-x: auto">
-              <table class="data-table">
-                <thead id="ongoing-thead-row">
-                  <!-- Dynamique via JS -->
-                </thead>
-                <tbody id="ongoing-tbody"></tbody>
-              </table>
+      <!-- PANNEAU DE CONTENU PRINCIPAL -->
+      <main class="glass-panel" style="padding: 2rem; min-height: 500px;">
+        
+        <!-- SECTION 1 : PUBLIER UNE OFFRE -->
+        <section id="section-publish" style="display: none;">
+          <h3 style="margin-bottom: 1.5rem;">Publier une nouvelle offre</h3>
+          
+          <form id="create-job-form">
+            <div class="form-group">
+              <label for="job-title">Titre de la mission</label>
+              <input type="text" id="job-title" class="form-control" placeholder="Ex: Recherche électricien pour câblage maison" required>
             </div>
-            <p
-              id="no-ongoing-msg"
-              style="
-                display: none;
-                text-align: center;
-                padding: 2rem;
-                color: var(--text-secondary);
-              "
-            >
-              Aucune mission en cours pour le moment.
-            </p>
-          </section>
 
-          <!-- SECTION : MY SUBMISSIONS (Candidat) -->
-          <section
-            id="section-my-submissions"
-            class="glass-panel"
-            style="display: none"
-          >
-            <h2 class="section-title">
-              <span class="dot"></span> Mes Candidatures
-            </h2>
-            <div style="overflow-x: auto">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Mission</th>
-                    <th>Recruteur</th>
-                    <th>Téléphone</th>
-                    <th>Statut</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody id="my-submissions-tbody"></tbody>
-              </table>
-            </div>
-            <p
-              id="no-submissions-msg"
-              style="
-                display: none;
-                text-align: center;
-                padding: 2rem;
-                color: var(--text-secondary);
-              "
-            >
-              Vous n'avez envoyé aucune candidature.
-            </p>
-          </section>
-
-          <!-- SECTION : MY OFFERS (Recruteur) -->
-          <section
-            id="section-my-offers"
-            class="glass-panel"
-            style="display: none"
-          >
-            <h2 class="section-title">
-              <span class="dot"></span> Mes Offres Publiées
-            </h2>
-            <div style="overflow-x: auto">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Titre</th>
-                    <th>Budget</th>
-                    <th>Type</th>
-                    <th>Date</th>
-                    <th>Statut</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody id="my-offers-tbody"></tbody>
-              </table>
-            </div>
-            <p
-              id="no-offers-msg"
-              style="
-                display: none;
-                text-align: center;
-                padding: 2rem;
-                color: var(--text-secondary);
-              "
-            >
-              Vous n'avez publié aucune offre d'emploi.
-            </p>
-          </section>
-
-          <!-- SECTION : PUBLISH OFFER (Recruteur) -->
-          <section
-            id="section-publish"
-            class="glass-panel"
-            style="display: none"
-          >
-            <h2 class="section-title">
-              <span class="dot" style="background: var(--danger)"></span>
-              Publier une nouvelle offre
-            </h2>
-            <form id="create-job-form">
-              <div
-                style="
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 1.25rem;
-                "
-              >
-                <div class="form-group">
-                  <label>Titre du besoin</label>
-                  <input
-                    type="text"
-                    id="job-title"
-                    class="form-control"
-                    placeholder="Ex: Développeur Web, Menuisier, etc."
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label>Domaine</label>
-                  <select id="job-domaine" class="form-control" required>
-                    <option value="Informatique & Dev">
-                      Informatique & Dev
-                    </option>
-                    <option value="Enseignement & Soutien">
-                      Enseignement & Soutien
-                    </option>
-                    <option value="Bâtiment & BTP">Bâtiment & BTP</option>
-                    <option value="Commerce & Vente">Commerce & Vente</option>
-                    <option value="Ménage & Services">Ménage & Services</option>
-                    <option value="Transport & Logistique">
-                      Transport & Logistique
-                    </option>
-                    <option value="Restauration & Cuisine">
-                      Restauration & Cuisine
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-              <div
-                style="
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 1.25rem;
-                "
-              >
-                <div class="form-group">
-                  <label>Type de contrat</label>
-                  <select id="job-type" class="form-control" required>
-                    <option value="Micro-mission">
-                      Micro-mission (quelques heures/jours)
-                    </option>
-                    <option value="Court terme">CDD / Court terme</option>
-                    <option value="Long terme">CDI / Long terme</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Budget proposé (XAF)</label>
-                  <input
-                    type="number"
-                    id="job-budget"
-                    class="form-control"
-                    placeholder="Ex: 50000"
-                    required
-                  />
-                </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label for="job-type">Type de contrat</label>
+                <select id="job-type" class="form-control" required>
+                  <option value="Micro-mission">Micro-mission (Quelques heures / jours)</option>
+                  <option value="Court terme">Court terme (Moins de 3 mois)</option>
+                  <option value="Long terme">Long terme (Plus de 3 mois)</option>
+                </select>
               </div>
 
               <div class="form-group">
-                <label>Description de la mission</label>
-                <textarea
-                  id="job-desc"
-                  class="form-control"
-                  rows="5"
-                  placeholder="Détaillez votre besoin, les compétences requises, etc."
-                  required
-                ></textarea>
+                <label for="job-domaine">Domaine d'activité</label>
+                <select id="job-domaine" class="form-control" required>
+                  <option value="Informatique & Dev">Informatique & Dev</option>
+                  <option value="Enseignement & Soutien">Enseignement & Soutien</option>
+                  <option value="Bâtiment & BTP">Bâtiment & BTP</option>
+                  <option value="Commerce & Vente">Commerce & Vente</option>
+                  <option value="Ménage & Services">Ménage & Services</option>
+                  <option value="Transport & Logistique">Transport & Logistique</option>
+                  <option value="Restauration & Cuisine">Restauration & Cuisine</option>
+                </select>
               </div>
+            </div>
 
-              <h4
-                style="
-                  margin: 1.5rem 0 1rem;
-                  font-size: 1rem;
-                  color: var(--text-secondary);
-                "
-              >
-                Localisation d'intervention
-              </h4>
-              <div
-                style="
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 1.25rem;
-                "
-              >
-                <div class="form-group">
-                  <label>Ville</label>
-                  <input
-                    type="text"
-                    id="job-ville"
-                    class="form-control"
-                    placeholder="Douala"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label>Quartier</label>
-                  <input
-                    type="text"
-                    id="job-quartier"
-                    class="form-control"
-                    placeholder="Akwa"
-                    required
-                  />
-                </div>
+            <div class="form-group">
+              <label for="job-budget">Budget proposé (en Francs CFA - XAF)</label>
+              <input type="number" id="job-budget" class="form-control" placeholder="Ex: 45000" required>
+            </div>
+
+            <div class="form-group">
+              <label for="job-desc">Description de la tâche et pré-requis</label>
+              <textarea id="job-desc" class="form-control" rows="6" placeholder="Décrivez le travail à réaliser en détail..." required></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label for="job-ville">Ville</label>
+                <input type="text" id="job-ville" class="form-control" placeholder="Douala" required>
               </div>
+              <div class="form-group">
+                <label for="job-quartier">Quartier</label>
+                <input type="text" id="job-quartier" class="form-control" placeholder="Bonapriso" required>
+              </div>
+            </div>
 
-              <!-- Hidden coordinates -->
-              <input type="hidden" id="job-lat" value="4.0511" />
-              <input type="hidden" id="job-lng" value="9.7679" />
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label for="job-lat">Latitude GPS (Optionnel)</label>
+                <input type="number" step="any" id="job-lat" class="form-control" placeholder="Ex: 4.05">
+              </div>
+              <div class="form-group">
+                <label for="job-lng">Longitude GPS (Optionnel)</label>
+                <input type="number" step="any" id="job-lng" class="form-control" placeholder="Ex: 9.76">
+              </div>
+            </div>
 
-              <button
-                type="submit"
-                class="btn btn-primary"
-                style="margin-top: 1rem; width: 100%; height: 3rem"
-              >
-                Publier l'offre en toute sécurité
-              </button>
-            </form>
-          </section>
-        </main>
-      </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+              Publier l'offre
+            </button>
+          </form>
+        </section>
+
+        <!-- SECTION 2 : LISTE DES OFFRES RECRUTEUR -->
+        <section id="section-my-offers" style="display: none;">
+          <h3 style="margin-bottom: 1.5rem;">Mes offres publiées</h3>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Offre</th>
+                  <th>Budget</th>
+                  <th>Type</th>
+                  <th>Date</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="my-offers-tbody">
+                <!-- Rempli dynamiquement -->
+              </tbody>
+            </table>
+          </div>
+          <div id="no-offers-msg" style="display: none; text-align: center; padding: 2rem; color: var(--text-secondary);">
+            Vous n'avez pas encore publié d'offres d'emploi.
+          </div>
+        </section>
+
+        <!-- SECTION 3 : LISTE DES CANDIDATURES CANDIDAT -->
+        <section id="section-my-submissions" style="display: none;">
+          <h3 style="margin-bottom: 1.5rem;">Mes candidatures envoyées</h3>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mission</th>
+                  <th>Recruteur</th>
+                  <th>Contact</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="my-submissions-tbody">
+                <!-- Rempli dynamiquement -->
+              </tbody>
+            </table>
+          </div>
+          <div id="no-submissions-msg" style="display: none; text-align: center; padding: 2rem; color: var(--text-secondary);">
+            Vous n'avez pas encore postulé à des offres.
+          </div>
+        </section>
+
+      </main>
     </div>
+  </div>
 
-    <!-- APPLICANTS DRAWER -->
-    <div id="applicants-drawer" class="side-drawer">
-      <div class="drawer-header">
-        <h3 id="drawer-title">Candidats</h3>
-        <button class="drawer-close" onclick="closeDrawer()">&times;</button>
-      </div>
-      <div id="drawer-content" class="drawer-content">
-        <!-- Rempli via JS -->
-      </div>
+  <!-- DRAWER DES CANDIDATS (PANNEAU LATÉRAL) -->
+  <div id="applicants-drawer" class="drawer">
+    <div class="drawer-header">
+      <h3 id="drawer-title" style="font-size: 1.4rem; font-weight: 800;">Postulants</h3>
+      <button onclick="closeDrawer()" style="background: transparent; border: none; font-size: 1.8rem; color: var(--text-secondary); cursor: pointer;">
+        &times;
+      </button>
     </div>
+    
+    <div id="drawer-content" style="flex-grow: 1; overflow-y: auto; padding-right: 5px;">
+      <!-- Liste des candidats injectée ici -->
+    </div>
+  </div>
 
-    <footer class="landing-footer" style="margin-top: 4rem">
-      <div class="footer-links">
-        <a href="/index.html">Accueil</a>
-        <a href="/recherche.html">Emplois en Live</a>
-        <a href="/chat.html">Messages</a>
-      </div>
-      <p>&copy; 2026 WorkCamer. Tous droits réservés.</p>
-    </footer>
-
-    <script src="/js/common.js"></script>
-    <script src="/js/dashboard.js"></script>
-    <script>
-      window.addEventListener("load", () => {
-        setTimeout(
-          () => document.getElementById("page-loader").classList.add("hidden"),
-          700,
-        );
-      });
-
-      document.addEventListener("DOMContentLoaded", () => {
-        const user = getUser();
-        if (!user) {
-          document.getElementById("auth-required-block").style.display =
-            "block";
-          return;
-        }
-
-        document.getElementById("dash-content").style.display = "block";
-
-        // Greeting
-        const fullName = `${user.prenom || ""} ${user.nom || ""}`.trim();
-        document.getElementById("dash-name").textContent =
-          fullName || user.prenom || "Utilisateur";
-        document.getElementById("dash-role").textContent =
-          `ESPACE ${(user.type || "Candidat").toUpperCase()}`;
-
-        // CNI badge
-        const badge = document.getElementById("dash-cni-badge");
-        if (user.cniStatus !== "Verified") {
-          badge.style.background = "rgba(234,179,8,0.12)";
-          badge.style.borderColor = "rgba(234,179,8,0.3)";
-          badge.style.color = "var(--secondary)";
-          badge.querySelector("svg").style.display = "none";
-          badge.childNodes.forEach((n) => {
-            if (n.nodeType === 3) n.textContent = "";
-          });
-          badge.querySelector(".cni-dot").style.background = "var(--secondary)";
-          const txt = document.createElement("span");
-          txt.textContent = "CNI non encore vérifiée";
-          badge.appendChild(txt);
-        }
-      });
-    </script>
-  </body>
+  <script src="/js/common.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
 </html>
