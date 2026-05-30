@@ -83,6 +83,59 @@ function handleCommencer(e) {
   }
 }
 
+// ── Hamburger menu mobile ──
+function createMobileMenuButton() {
+  const navbar = document.querySelector('.navbar');
+  if (!navbar || document.getElementById('mobile-menu-btn')) return;
+
+  const btn = document.createElement('button');
+  btn.id = 'mobile-menu-btn';
+  btn.className = 'mobile-menu-btn';
+  btn.setAttribute('aria-label', 'Menu');
+  btn.innerHTML = `
+    <span class="burger-line"></span>
+    <span class="burger-line"></span>
+    <span class="burger-line"></span>
+  `;
+  btn.addEventListener('click', toggleMobileMenu);
+  navbar.appendChild(btn);
+}
+
+function toggleMobileMenu() {
+  const navLinks = document.getElementById('nav-links');
+  const btn = document.getElementById('mobile-menu-btn');
+  if (!navLinks || !btn) return;
+
+  const isOpen = navLinks.classList.contains('mobile-open');
+  if (isOpen) {
+    navLinks.classList.remove('mobile-open');
+    btn.classList.remove('active');
+    document.body.style.overflow = '';
+  } else {
+    navLinks.classList.add('mobile-open');
+    btn.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeMobileMenu() {
+  const navLinks = document.getElementById('nav-links');
+  const btn = document.getElementById('mobile-menu-btn');
+  if (navLinks) navLinks.classList.remove('mobile-open');
+  if (btn) btn.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Fermer le menu quand on clique en dehors
+document.addEventListener('click', (e) => {
+  const navLinks = document.getElementById('nav-links');
+  const btn = document.getElementById('mobile-menu-btn');
+  if (!navLinks || !btn) return;
+  if (!navLinks.contains(e.target) && !btn.contains(e.target)) {
+    closeMobileMenu();
+  }
+});
+
 function updateNavbar() {
   const user = getUser();
   const navLinks = document.getElementById('nav-links');
@@ -109,13 +162,13 @@ function updateNavbar() {
       <li><a href="/dashboard.html" class="nav-link ${isActive('/dashboard.html')}">Tableau de bord</a></li>
       <li><a href="/chat.html" class="nav-link ${isActive('/chat.html')}">Discussions</a></li>
 
-      <li style="display:flex;align-items:center;gap:6px">
+      <li class="nav-user-info">
         <span style="font-weight:600;color:var(--text-primary);font-size:0.9rem">${user.prenom} (${user.type})</span>
         ${cniHtml}
       </li>
       <li><button onclick="logout()" class="btn btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.82rem">Déconnexion</button></li>
-       <li>
-        <button onclick="void(0)" style="background:none;border:none;cursor:pointer;color:var(--secondary);position:relative;padding:4px" title="Notifications">
+      <li>
+        <button onclick="const nb = document.getElementById('notifications-block'); if(nb) { nb.scrollIntoView({behavior: 'smooth', block: 'start'}); closeMobileMenu(); } else { window.location.href='/index.html'; }" class="btn-notification" style="background:none;border:none;cursor:pointer;color:var(--secondary);position:relative;padding:4px" title="Notifications">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </button>
       </li>
@@ -127,6 +180,11 @@ function updateNavbar() {
       <li><a href="/auth.html?mode=register" class="btn btn-primary" style="padding:0.4rem 0.9rem;font-size:0.85rem">S'inscrire</a></li>
     `;
   }
+
+  // Fermer le menu mobile quand on clique sur un lien
+  navLinks.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('click', () => closeMobileMenu());
+  });
 }
 
 // Déconnexion
@@ -141,4 +199,5 @@ function logout() {
 // Initialisation globale de la page
 document.addEventListener('DOMContentLoaded', () => {
   updateNavbar();
+  createMobileMenuButton();
 });
