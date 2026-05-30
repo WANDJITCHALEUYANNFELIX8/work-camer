@@ -108,16 +108,17 @@ function updateNavbar() {
       <li><a href="/recherche.html" class="nav-link ${isActive('/recherche.html')}">Emplois en Live</a></li>
       <li><a href="/dashboard.html" class="nav-link ${isActive('/dashboard.html')}">Tableau de bord</a></li>
       <li><a href="/chat.html" class="nav-link ${isActive('/chat.html')}">Discussions</a></li>
-      <li>
-        <button onclick="void(0)" style="background:none;border:none;cursor:pointer;color:var(--secondary);position:relative;padding:4px" title="Notifications">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-        </button>
-      </li>
+
       <li style="display:flex;align-items:center;gap:6px">
         <span style="font-weight:600;color:var(--text-primary);font-size:0.9rem">${user.prenom} (${user.type})</span>
         ${cniHtml}
       </li>
       <li><button onclick="logout()" class="btn btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.82rem">Déconnexion</button></li>
+       <li>
+        <button onclick="void(0)" style="background:none;border:none;cursor:pointer;color:var(--secondary);position:relative;padding:4px" title="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </button>
+      </li>
     `;
   } else {
     navLinks.innerHTML = `

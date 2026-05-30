@@ -71,7 +71,6 @@ body {
   box-shadow: var(--shadow-premium);
 }
 
-/* ===== NAVBAR ===== */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -111,6 +110,7 @@ body {
     transform: rotate(360deg);
   }
 }
+
 .nav-links {
   display: flex;
   gap: 1.5rem;
@@ -196,7 +196,6 @@ body {
   border-radius: 14px;
 }
 
-/* ===== CNI BADGE ===== */
 .cni-badge {
   display: inline-flex;
   align-items: center;

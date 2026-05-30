@@ -45,7 +45,7 @@ async function loadJobs(queryString = '') {
       card.className = `glass-panel premium-job-card ${typeClass}`;
       card.onclick = () => openJobModal(job._id);
 
-      // Formater le budget
+    
       const formattedBudget = new Intl.NumberFormat('fr-FR').format(job.budget) + ' XAF';
 
       card.innerHTML = `
@@ -70,7 +70,6 @@ async function loadJobs(queryString = '') {
           </div>
         </div>
       `;
-
       listContainer.appendChild(card);
     });
   } catch (error) {
