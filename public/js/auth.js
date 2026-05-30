@@ -21,29 +21,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Basculer l'affichage Connexion / Inscription
 function toggleMode(mode) {
-  const loginBox = document.getElementById('login-container');
+  const loginBox    = document.getElementById('login-container');
   const registerBox = document.getElementById('register-container');
-  const cniBox = document.getElementById('cni-verification-container');
-  const tabLogin = document.getElementById('tab-login');
+  const cniBox      = document.getElementById('cni-verification-container');
+  const tabLogin    = document.getElementById('tab-login');
   const tabRegister = document.getElementById('tab-register');
-  const authTabs = document.getElementById('auth-selector-tabs');
-  
+
   cniBox.style.display = 'none';
 
-  if (mode === 'register') {
-    loginBox.style.display = 'none';
-    registerBox.style.display = 'block';
-    if (tabLogin) tabLogin.classList.remove('active');
-    if (tabRegister) tabRegister.classList.add('active');
-    if (authTabs) authTabs.style.display = 'flex';
-    // Auto-trigger geolocation
-    setTimeout(() => { if (typeof detectGeolocation === 'function') detectGeolocation(); }, 300);
+  // Mettre à jour les onglets actifs
+  if (tabLogin)    tabLogin.classList.toggle('active', mode === 'login');
+  if (tabRegister) tabRegister.classList.toggle('active', mode === 'register');
+
+  const incoming = mode === 'register' ? registerBox : loginBox;
+  const outgoing  = mode === 'register' ? loginBox    : registerBox;
+
+  if (outgoing.style.display !== 'none') {
+    outgoing.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
+    outgoing.style.opacity    = '0';
+    outgoing.style.transform  = mode === 'register' ? 'translateX(-18px)' : 'translateX(18px)';
+    setTimeout(() => {
+      outgoing.style.display   = 'none';
+      outgoing.style.opacity   = '';
+      outgoing.style.transform = '';
+      incoming.style.display   = 'block';
+      incoming.style.opacity   = '0';
+      incoming.style.transform = mode === 'register' ? 'translateX(18px)' : 'translateX(-18px)';
+      requestAnimationFrame(() => {
+        incoming.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+        incoming.style.opacity    = '1';
+        incoming.style.transform  = 'translateX(0)';
+        setTimeout(() => {
+          incoming.style.transition = '';
+          incoming.style.opacity    = '';
+          incoming.style.transform  = '';
+        }, 220);
+      });
+    }, 180);
   } else {
-    loginBox.style.display = 'block';
-    registerBox.style.display = 'none';
-    if (tabLogin) tabLogin.classList.add('active');
-    if (tabRegister) tabRegister.classList.remove('active');
-    if (authTabs) authTabs.style.display = 'flex';
+    outgoing.style.display  = 'none';
+    incoming.style.display  = 'block';
   }
 }
 
@@ -52,8 +69,6 @@ function showCniScreen() {
   document.getElementById('login-container').style.display = 'none';
   document.getElementById('register-container').style.display = 'none';
   document.getElementById('cni-verification-container').style.display = 'block';
-  const authTabs = document.getElementById('auth-selector-tabs');
-  if (authTabs) authTabs.style.display = 'none';
 }
 
 // Formulaire de Connexion
@@ -76,7 +91,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
       if (data.user.cniStatus !== 'Verified') {
         showCniScreen();
       } else {
-      window.location.href = '/index.html';
+        window.location.href = '/index.html';
       }
     }, 1000);
   } catch (error) {
@@ -126,28 +141,101 @@ let imagesBase64 = {
   selfie: null
 };
 
-// Activer le clic de sélection d'image
-function triggerUpload(id) {
-  document.getElementById(id).click();
+// --- CAMÉRA FRONTALE POUR SELFIE ---
+
+let selfieStream = null;
+
+async function openFrontCamera() {
+  const btn = document.getElementById('btn-open-camera');
+  const captureBtn = document.getElementById('btn-capture-selfie');
+  const cameraView = document.getElementById('selfie-camera-view');
+  const video = document.getElementById('selfie-video');
+
+  btn.disabled = true;
+  btn.innerText = 'Activation...';
+
+  try {
+    selfieStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+      audio: false
+    });
+    video.srcObject = selfieStream;
+    cameraView.style.display = 'block';
+    btn.style.display = 'none';
+    captureBtn.style.display = 'flex';
+    showToast('Caméra frontale activée !', 'success');
+  } catch (err) {
+    console.error('Caméra refusée:', err);
+    btn.disabled = false;
+    btn.innerText = 'Activer Caméra Frontale';
+    showToast('Accès caméra refusé. Vérifiez les permissions.', 'error');
+  }
 }
 
-// Aperçu des images téléchargées et encodage base64
-function previewImage(input, target) {
-  const file = input.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  
-  reader.onload = function(e) {
-    const preview = document.getElementById(`${target}-preview`);
-    const box = document.getElementById(`${target}-box`);
-    
-    preview.src = e.target.result;
-    box.classList.add('has-image');
-    imagesBase64[target] = e.target.result;
-  };
-  
-  reader.readAsDataURL(file);
+function captureSelfie() {
+  const video = document.getElementById('selfie-video');
+  const canvas = document.getElementById('selfie-canvas');
+  const preview = document.getElementById('selfie-preview');
+  const cameraView = document.getElementById('selfie-camera-view');
+  const selfieBox = document.getElementById('selfie-box');
+  const captureBtn = document.getElementById('btn-capture-selfie');
+  const retakeBtn = document.getElementById('btn-retake-selfie');
+
+  // Flash effect
+  const flash = document.createElement('div');
+  flash.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:white;opacity:0.85;z-index:9999;pointer-events:none;transition:opacity 0.3s';
+  document.body.appendChild(flash);
+  setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 300); }, 80);
+
+  // Draw video frame on canvas (mirrored like the preview)
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.translate(canvas.width, 0);
+  ctx.scale(-1, 1);
+  ctx.drawImage(video, 0, 0);
+
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+  imagesBase64.selfie = dataUrl;
+
+  // Stop camera stream
+  if (selfieStream) {
+    selfieStream.getTracks().forEach(t => t.stop());
+    selfieStream = null;
+  }
+
+  // Show preview
+  preview.src = dataUrl;
+  cameraView.style.display = 'none';
+  selfieBox.style.display = 'block';
+  selfieBox.classList.add('has-image');
+  captureBtn.style.display = 'none';
+  retakeBtn.style.display = 'block';
+
+  showToast('Selfie capturé !', 'success');
+  checkAndAutoVerify();
+}
+
+function retakeSelfie() {
+  const selfieBox = document.getElementById('selfie-box');
+  const retakeBtn = document.getElementById('btn-retake-selfie');
+  const openBtn = document.getElementById('btn-open-camera');
+
+  imagesBase64.selfie = null;
+  selfieBox.style.display = 'none';
+  selfieBox.classList.remove('has-image');
+  retakeBtn.style.display = 'none';
+  openBtn.style.display = 'flex';
+  openBtn.disabled = false;
+  openBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> Activer Caméra Frontale`;
+}
+
+// Vérification automatique dès que CNI + selfie sont prêts
+function checkAndAutoVerify() {
+  if (imagesBase64.cni && imagesBase64.selfie) {
+    // Petit délai pour que l'UI se mette à jour visuellement
+    setTimeout(() => startBiometricVerification(), 600);
+  }
 }
 
 // Fonction de simulation biométrique avec logs animés
@@ -157,11 +245,7 @@ function startBiometricVerification() {
     return;
   }
   
-  const btn = document.getElementById('btn-start-verify');
   const logsBox = document.getElementById('step-logs');
-  
-  btn.disabled = true;
-  btn.innerText = 'Vérification biométrique en cours...';
   logsBox.style.display = 'flex';
   
   // Activer l'animation laser sur les deux images
@@ -223,19 +307,61 @@ function startBiometricVerification() {
       localStorage.setItem('user', JSON.stringify(currentUser));
       
       document.getElementById('verify-results').style.display = 'block';
+
+      // Animation dynamique du statut DGSN
+      animateDgsnStatus();
+
       showToast('Identité validée à 100% avec succès !', 'success');
       
     } catch (err) {
       document.getElementById('cni-box').classList.remove('scanning');
       document.getElementById('selfie-box').classList.remove('scanning');
-      btn.disabled = false;
-      btn.innerText = "Démarrer l'analyse d'identité";
       showToast(err.message, 'error');
     }
   }, 6000);
 }
 
-// Terminer le flux d'inscription et rediriger
+// Démarrer le flux d'inscription et rediriger
 function finishVerificationFlow() {
-  window.location.href = '/dashboard.html';
+  window.location.href = '/index.html';
+}
+
+// Animation dynamique du statut DGSN
+function animateDgsnStatus() {
+  const badge = document.getElementById('dgsn-status-badge');
+  const pulse = document.getElementById('dgsn-pulse');
+  const text = document.getElementById('dgsn-status-text');
+
+  if (!badge || !text) return;
+
+  const steps = [
+    { label: 'CONNEXION...', color: 'var(--secondary)', pulseColor: '#eab308' },
+    { label: 'AUTHENTIFICATION...', color: 'var(--secondary)', pulseColor: '#eab308' },
+    { label: 'VÉRIFICATION...', color: '#60a5fa', pulseColor: '#60a5fa' },
+    { label: 'VALIDATION...', color: '#a78bfa', pulseColor: '#a78bfa' },
+    { label: '✔ VERIFIED', color: 'var(--primary)', pulseColor: '#22c55e', final: true },
+  ];
+
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i >= steps.length) {
+      clearInterval(interval);
+      return;
+    }
+    const step = steps[i];
+    text.style.color = step.color;
+    text.innerText = step.label;
+    pulse.style.background = step.pulseColor;
+    pulse.style.boxShadow = `0 0 0 0 ${step.pulseColor}66`;
+
+    if (step.final) {
+      clearInterval(interval);
+      pulse.style.animation = 'none';
+      // Pop animation sur le badge
+      badge.style.animation = 'dgsn-verified-pop 0.45s cubic-bezier(0.22,1,0.36,1) forwards';
+      text.style.fontWeight = '900';
+      text.style.letterSpacing = '2px';
+    }
+    i++;
+  }, 520);
 }

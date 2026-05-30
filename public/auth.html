@@ -715,62 +715,64 @@
             />
           </div>
           <div class="form-group" style="margin-top: 1.5rem">
-            <label
-              style="font-weight: 600; margin-bottom: 0.5rem; display: block"
-              >2. Selfie Instantané de Contrôle</label
-            >
-            <div
-              id="selfie-box"
-              class="scanner-box"
-              onclick="triggerUpload('selfie-file')"
-            >
-              <div class="scanner-laser"></div>
-              <div
-                class="scanner-placeholder"
-                style="text-align: center; padding: 1rem"
-              >
-                <svg
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  style="
-                    color: var(--primary);
-                    margin: 0 auto 0.5rem;
-                    display: block;
-                  "
-                >
-                  <path
-                    d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-                  ></path>
+            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block">
+              2. Selfie Instantané — Caméra Frontale
+            </label>
+
+            <!-- Vue caméra active -->
+            <div id="selfie-camera-view" style="display:none; position:relative; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-glass);">
+              <video id="selfie-video" autoplay playsinline muted
+                style="width:100%; display:block; border-radius: var(--radius-md); transform: scaleX(-1);"></video>
+              <!-- Overlay de guidage -->
+              <div style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;">
+                <!-- Coin guides -->
+                <div style="position:absolute;top:12px;left:12px;width:32px;height:32px;border-top:3px solid var(--primary);border-left:3px solid var(--primary);border-radius:4px 0 0 0;"></div>
+                <div style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-top:3px solid var(--primary);border-right:3px solid var(--primary);border-radius:0 4px 0 0;"></div>
+                <div style="position:absolute;bottom:52px;left:12px;width:32px;height:32px;border-bottom:3px solid var(--primary);border-left:3px solid var(--primary);border-radius:0 0 0 4px;"></div>
+                <div style="position:absolute;bottom:52px;right:12px;width:32px;height:32px;border-bottom:3px solid var(--primary);border-right:3px solid var(--primary);border-radius:0 0 4px 0;"></div>
+                <!-- Ellipse visage -->
+                <svg style="position:absolute;top:10%;left:50%;transform:translateX(-50%);opacity:0.35;width:55%;max-width:160px" viewBox="0 0 160 200" fill="none">
+                  <ellipse cx="80" cy="100" rx="70" ry="90" stroke="var(--primary)" stroke-width="2" stroke-dasharray="6 4"/>
+                </svg>
+              </div>
+              <div style="position:absolute;bottom:0;left:0;right:0;padding:8px;background:rgba(0,0,0,0.55);text-align:center;font-size:0.75rem;color:var(--text-secondary);">
+                Centrez votre visage dans l'ellipse
+              </div>
+            </div>
+
+            <!-- Bouton lancer caméra / capturer -->
+            <div id="selfie-camera-controls" style="margin-top:0.75rem; display:flex; gap:8px;">
+              <button type="button" id="btn-open-camera" onclick="openFrontCamera()"
+                class="btn btn-secondary"
+                style="flex:1; height:2.6rem; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:6px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                   <circle cx="12" cy="13" r="4"></circle>
                 </svg>
-                <span style="font-weight: 500; font-size: 0.9rem"
-                  >Cliquez pour charger le Selfie</span
-                >
-              </div>
-              <img id="selfie-preview" alt="Aperçu Selfie" />
+                Activer Caméra Frontale
+              </button>
+              <button type="button" id="btn-capture-selfie" onclick="captureSelfie()"
+                class="btn btn-primary"
+                style="flex:1; height:2.6rem; font-size:0.85rem; display:none; align-items:center; justify-content:center; gap:6px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Prendre le Selfie
+              </button>
             </div>
-            <input
-              type="file"
-              id="selfie-file"
-              style="display: none"
-              accept="image/*"
-              onchange="previewImage(this, 'selfie')"
-            />
+
+            <!-- Aperçu après capture -->
+            <div id="selfie-box" class="scanner-box" style="display:none; cursor:default;">
+              <div class="scanner-laser"></div>
+              <img id="selfie-preview" alt="Aperçu Selfie" style="display:block;width:100%;border-radius:var(--radius-md);" />
+            </div>
+            <button type="button" id="btn-retake-selfie" onclick="retakeSelfie()"
+              style="display:none; margin-top:0.5rem; background:none; border:1px solid var(--border-glass); color:var(--text-secondary); border-radius:var(--radius-sm); padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; width:100%;">
+              🔄 Reprendre le selfie
+            </button>
+            <canvas id="selfie-canvas" style="display:none;"></canvas>
           </div>
-          <button
-            id="btn-start-verify"
-            onclick="startBiometricVerification()"
-            class="btn btn-primary"
-            style="width: 100%; margin-top: 2rem; height: 3rem"
-          >
-            Démarrer l'analyse d'identité
-          </button>
+
           <div id="step-logs" class="step-log">
             <div id="log-1" class="step-log-item">
               &#9881; Connexion sécurisée aux serveurs DGSN Cameroun...
@@ -801,12 +803,25 @@
               <span>Correspondance faciale :</span
               ><span id="res-score" style="color: var(--primary)">...</span>
             </div>
-            <div class="result-row">
-              <span>Statut DGSN :</span
-              ><span style="color: var(--primary); font-weight: bold"
-                >VERIFIED</span
-              >
+            <div class="result-row" style="align-items:center;">
+              <span>Statut DGSN :</span>
+              <span id="dgsn-status-badge" style="display:inline-flex;align-items:center;gap:6px;">
+                <span id="dgsn-pulse" style="width:8px;height:8px;background:var(--primary);border-radius:50%;display:inline-block;box-shadow:0 0 0 0 rgba(34,197,94,0.6);animation:dgsn-pulse 1.4s infinite;"></span>
+                <span id="dgsn-status-text" style="color:var(--primary);font-weight:800;letter-spacing:1px;font-size:0.85rem;">CONNEXION...</span>
+              </span>
             </div>
+            <style>
+              @keyframes dgsn-pulse {
+                0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
+                70%  { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+                100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+              }
+              @keyframes dgsn-verified-pop {
+                0%   { transform: scale(0.7); opacity:0; }
+                60%  { transform: scale(1.15); }
+                100% { transform: scale(1); opacity:1; }
+              }
+            </style>
             <button
               onclick="finishVerificationFlow()"
               class="btn btn-primary"
@@ -829,6 +844,8 @@
         );
       });
 
+      const GOOGLE_API_KEY = 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8';
+
       function detectGeolocation() {
         const statusDiv = document.getElementById("gps-status");
         const statusText = document.getElementById("gps-status-text");
@@ -837,92 +854,90 @@
         statusDiv.style.display = "flex";
         statusText.innerText = "Interrogation du capteur GPS...";
 
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-              const lat = pos.coords.latitude,
-                lng = pos.coords.longitude;
-              document.getElementById("reg-lat").value = lat.toFixed(6);
-              document.getElementById("reg-lng").value = lng.toFixed(6);
-              // Update Google Maps iframe
-              document.getElementById("gmap-iframe").src =
-                `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${lat},${lng}&zoom=16`;
-              statusText.innerText = `Coordonnées reçues (${lat.toFixed(4)}, ${lng.toFixed(4)})...`;
-              try {
-                const r = await fetch(
-                  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
-                );
-                const d = await r.json();
-                if (d && d.address) {
-                  document.getElementById("reg-ville").value =
-                    d.address.city ||
-                    d.address.town ||
-                    d.address.village ||
-                    "Douala";
-                  document.getElementById("reg-quartier").value =
-                    d.address.suburb ||
-                    d.address.neighbourhood ||
-                    d.address.quarter ||
-                    "Akwa";
-                }
-              } catch (e) {
-                document.getElementById("reg-ville").value = "Douala";
-                document.getElementById("reg-quartier").value = "Akwa";
-              }
-              statusText.innerHTML =
-                '<span style="color:var(--primary)">Position GPS synchronisée !</span>';
-              btn.disabled = false;
-              showToast("Géolocalisation réussie !", "success");
-            },
-            () => {
-              statusText.innerText = "GPS refusé. Triangulation réseau...";
-              setTimeout(() => {
-                const locs = [
-                  {
-                    ville: "Douala",
-                    quartier: "Akwa",
-                    lat: 4.0511,
-                    lng: 9.7679,
-                  },
-                  {
-                    ville: "Douala",
-                    quartier: "Bonapriso",
-                    lat: 4.0322,
-                    lng: 9.7022,
-                  },
-                  {
-                    ville: "Yaoundé",
-                    quartier: "Bastos",
-                    lat: 3.889,
-                    lng: 11.5015,
-                  },
-                  {
-                    ville: "Bafoussam",
-                    quartier: "Tamda",
-                    lat: 5.478,
-                    lng: 10.418,
-                  },
-                  { ville: "Buea", quartier: "Molyko", lat: 4.156, lng: 9.241 },
-                ];
-                const s = locs[Math.floor(Math.random() * locs.length)];
-                document.getElementById("reg-ville").value = s.ville;
-                document.getElementById("reg-quartier").value = s.quartier;
-                document.getElementById("reg-lat").value = s.lat;
-                document.getElementById("reg-lng").value = s.lng;
-                document.getElementById("gmap-iframe").src =
-                  `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${s.lat},${s.lng}&zoom=15`;
-                statusText.innerHTML =
-                  '<span style="color:var(--primary)">Triangulation réussie !</span>';
-                btn.disabled = false;
-                showToast("Position simulée !", "success");
-              }, 1500);
-            },
-            { enableHighAccuracy: true, timeout: 5000 },
-          );
-        } else {
+        if (!navigator.geolocation) {
           statusText.innerText = "GPS non supporté.";
           btn.disabled = false;
+          return;
         }
+
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            document.getElementById("reg-lat").value = lat.toFixed(6);
+            document.getElementById("reg-lng").value = lng.toFixed(6);
+
+            // Mise à jour de la carte Google Maps
+            document.getElementById("gmap-iframe").src =
+              `https://www.google.com/maps/embed/v1/view?key=${GOOGLE_API_KEY}&center=${lat},${lng}&zoom=17`;
+
+            statusText.innerText = `GPS trouvé (${lat.toFixed(4)}, ${lng.toFixed(4)}) — Reverse geocoding...`;
+
+            try {
+              // Google Maps Geocoding API (précis, supporte les quartiers camerounais)
+              const resp = await fetch(
+                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}&language=fr&region=cm`
+              );
+              const geoData = await resp.json();
+
+              let ville = '', quartier = '';
+
+              if (geoData.status === 'OK' && geoData.results.length > 0) {
+                // Parcourir les composants d'adresse du résultat le plus précis
+                const components = geoData.results[0].address_components;
+
+                for (const comp of components) {
+                  if (comp.types.includes('locality') || comp.types.includes('administrative_area_level_2')) {
+                    if (!ville) ville = comp.long_name;
+                  }
+                  if (comp.types.includes('sublocality') || comp.types.includes('sublocality_level_1') ||
+                      comp.types.includes('neighborhood') || comp.types.includes('political')) {
+                    if (!quartier) quartier = comp.long_name;
+                  }
+                }
+
+                // Fallback : prendre depuis les résultats de niveau supérieur
+                if (!ville) {
+                  for (const result of geoData.results) {
+                    for (const comp of result.address_components) {
+                      if (!ville && (comp.types.includes('locality') || comp.types.includes('administrative_area_level_2'))) {
+                        ville = comp.long_name;
+                      }
+                      if (!quartier && (comp.types.includes('neighborhood') || comp.types.includes('sublocality'))) {
+                        quartier = comp.long_name;
+                      }
+                    }
+                  }
+                }
+
+                if (!ville) ville = 'Douala';
+                if (!quartier) quartier = geoData.results[0].formatted_address.split(',')[0] || 'Centre';
+              } else {
+                ville = 'Douala';
+                quartier = 'Akwa';
+              }
+
+              document.getElementById("reg-ville").value = ville;
+              document.getElementById("reg-quartier").value = quartier;
+              statusText.innerHTML = `<span style="color:var(--primary)">✅ ${quartier}, ${ville}</span>`;
+              btn.disabled = false;
+              showToast(`Localisation Google Maps : ${quartier}, ${ville}`, 'success');
+
+            } catch (err) {
+              console.error('Erreur Geocoding:', err);
+              document.getElementById("reg-ville").value = 'Douala';
+              document.getElementById("reg-quartier").value = 'Akwa';
+              statusText.innerHTML = '<span style="color:var(--secondary)">Geocoding échoué — saisie manuelle</span>';
+              btn.disabled = false;
+            }
+          },
+          (err) => {
+            console.warn('GPS refusé:', err.message);
+            statusText.innerText = "GPS refusé — saisie manuelle.";
+            btn.disabled = false;
+          },
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        );
       }
     </script>
   </body>
