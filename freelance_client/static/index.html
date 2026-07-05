@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INF232 - Analyse Freelances & Clients</title>
+    <!-- Polices Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icônes FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Feuille de style CSS principale -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Bibliothèque Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Barre de navigation latérale -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <i class="fa-solid fa-chart-line logo-icon"></i>
+                <div class="logo-text">
+                    <h2>INF232 - TP</h2>
+                    <span>Freelance Client</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="tab-welcome">
+                    <i class="fa-solid fa-house"></i> Accueil & Données
+                </button>
+                <button class="nav-item" data-tab="tab-q1">
+                    <i class="fa-solid fa-chart-bar"></i> Q1 - Univariée (Perf)
+                </button>
+                <button class="nav-item" data-tab="tab-q2">
+                    <i class="fa-solid fa-chart-line"></i> Q2 - Bivariée (Régression)
+                </button>
+                <button class="nav-item" data-tab="tab-q3">
+                    <i class="fa-solid fa-circle-nodes"></i> Q3 - Clustering (K-Means)
+                </button>
+                <button class="nav-item" data-tab="tab-q4">
+                    <i class="fa-solid fa-brain"></i> Q4 - Supervisé (ML)
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="group-info">
+                    <p class="chef-label">Chef de Groupe :</p>
+                    <p class="chef-name">WANDJI T. Yann Felix</p>
+                    <p class="graine-value">Seed: <span id="display-seed">42265903</span></p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Zone de contenu principal -->
+        <main class="main-content">
+            <!-- En-tête de la page -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="page-title">Accueil & Données</h1>
+                    <p id="page-subtitle">Génération déterministe et aperçu de la structure des données simulées.</p>
+                </div>
+                <div class="status-badge">
+                    <span class="dot"></span>
+                    <span>Données WANDJITCHALEUYANNFELIX</span>
+                </div>
+            </header>
+
+            <!-- Onglet 1 : Accueil et Données -->
+            <section id="tab-welcome" class="tab-content active">
+                <div class="grid-2x1">
+                    <div class="card glass">
+                        <div class="card-header">
+                            <i class="fa-solid fa-gears card-icon"></i>
+                            <h3>Mécanisme de Génération</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Les données ont été générées de façon strictement déterministe à partir du nom complet nettoyé du chef de groupe :</p>
+                            <div class="code-box">
+                                <code>"WANDJITCHALEUYANNFELIX"</code>
+                            </div>
+                            <p>Ce nom a été converti via SHA-256 en une graine numérique :</p>
+                            <div class="graine-badge">
+                                <strong>Graine : 42265903</strong>
+                            </div>
+                            <p>Cette graine a ensuite alimenté un générateur pseudo-aléatoire pour produire un échantillon de <strong>300 freelances</strong>.</p>
+                            <div class="variables-list">
+                                <h4>Variables générées :</h4>
+                                <ul>
+                                    <li><strong>Freelance_ID :</strong> Identifiant unique (ex: <code>FL-001</code>).</li>
+                                    <li><strong>Performance (X₁) :</strong> Score continu entre 20 et 100 (client satisfaction index).</li>
+                                    <li><strong>TJM_FCFA (X₂) :</strong> Tarif Journalier Moyen (en francs CFA), corrélé à la performance.</li>
+                                    <li><strong>Statut (Y) :</strong> Label historique de l'équipe commerciale (<code>Premium</code> ou <code>Standard</code>).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card glass">
+                        <div class="card-header">
+                            <i class="fa-solid fa-table card-icon"></i>
+                            <h3>Aperçu du Jeu de Données</h3>
+                            <button id="btn-download" class="btn-primary btn-sm"><i class="fa-solid fa-download"></i> Télécharger CSV</button>
+                        </div>
+                        <div class="card-body scroll-table-container">
+                            <table class="data-table" id="data-preview-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Performance (/100)</th>
+                                        <th>TJM (FCFA)</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Inséré par JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Onglet 2 : Question 1 (Analyse Univariée) -->
+            <section id="tab-q1" class="tab-content">
+                <div class="stats-row" id="q1-stats-row">
+                    <!-- Rempli par JS (Moyenne, Médiane, Écart-type, Outliers) -->
+                </div>
+                
+                <div class="grid-2x1">
+                    <div class="card glass">
+                        <div class="card-header">
+                            <i class="fa-solid fa-chart-bar card-icon"></i>
+                            <h3>Distribution de la Performance</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="q1-histogram-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card glass">
+                        <div class="card-header">
+                            <i class="fa-solid fa-sliders card-icon"></i>
+                            <h3>Boîte à Moustaches (Boxplot) & Valeurs Atypiques</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="boxplot-section">
+                                <div id="custom-boxplot-svg"></div>
+                            </div>
+                            <div class="outliers-section">
+                                <h4>Valeurs Hors-Norme Identifiées (Seuil IQR <span id="q1-iqr-bounds"></span>)</h4>
+                                <div class="table-micro-container">
+                                    <table class="data-table" id="q1-outliers-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Performance</th>
+                                                <th>TJM</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Outliers -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card glass mt-4">
+                    <div class="card-header">
+                        <i class="fa-solid fa-comment-dots card-icon"></i>
+                        <h3>Synthèse pour le Comité d'Investisseurs</h3>
+                    </div>
+                    <div class="card-body text-block" id="q1-summary-text">
+                        <!-- Texte rédigé -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Onglet 3 : Question 2 (Analyse Bivariée) -->
+            <section id="tab-q2" class="tab-content">
+                <div class="stats-row" id="q2-stats-row">
+                    <!-- Rempli par JS (Corrélation, R², Équation) -->
+                </div>
+
+                <div class="grid-2x1">
+                    <div class="card glass">
+                        <div class="card-header">
+                            <i class="fa-solid fa-chart-line card-icon"></i>
+                            <h3>Nuage de Points et Droite de Régression</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="q2-regression-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card glass">
+                        <div class="card-header">
+                            <i class="fa-solid fa-chart-simple card-icon"></i>
+                            <h3>Analyse Graphique des Résidus</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="q2-residuals-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card glass mt-4">
+                    <div class="card-header">
+                        <i class="fa-solid fa-triangle-exclamation card-icon"></i>
+                        <h3>Limites d'Anticipation et de Prédiction</h3>
+                    </div>
+                    <div class="card-body text-block" id="q2-limits-text">
+                        <!-- Texte rédigé -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Onglet 4 : Question 3 (Classification Non Supervisée) -->
+            <section id="tab-q3" class="tab-content">
+                <div class="card glass mb-4">
+                    <div class="card-header">
+                        <i class="fa-solid fa-magnifying-glass card-icon"></i>
+                        <h3>Résultats du Clustering K-Means (K=3)</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>L'algorithme K-Means a été configuré avec <strong>K = 3 clusters</strong> après standardisation (Z-score) des variables de performance et de TJM. Ce nombre permet de faire émerger des structures claires de tarification et d'efficacité.</p>
+                    </div>
+                </div>
+
+                <div class="grid-2x1">
+                    <div class="card glass">
+                        <div class="card-header">
+                            <i class="fa-solid fa-circle-nodes card-icon"></i>
+                            <h3>Visualisation des Clusters K-Means</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="q3-kmeans-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card glass">
+                        <div class="card-header">
+                            <i class="fa-solid fa-list-check card-icon"></i>
+                            <h3>Caractérisation des 3 Profils de Freelances</h3>
+                        </div>
+                        <div class="card-body scroll-table-container">
+                            <table class="data-table" id="q3-clusters-table">
+                                <thead>
+                                    <tr>
+                                        <th>Profil / Groupe</th>
+                                        <th>Effectif (%)</th>
+                                        <th>Perf Moyenne</th>
+                                        <th>TJM Moyen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Inséré par JS -->
+                                </tbody>
+                            </table>
+                            <div class="cluster-descriptions" id="q3-cluster-desc-block">
+                                <!-- Descriptions -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Onglet 5 : Question 5 (Classification Supervisée) -->
+            <section id="tab-q4" class="tab-content">
+                <div class="grid-2x1">
+                    <div class="card glass">
+                        <div class="card-header">
+                            <i class="fa-solid fa-shield-halved card-icon"></i>
+                            <h3>Comparaison des Modèles Prédictifs</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Nous avons divisé les données (80% entraînement / 20% test) pour entraîner deux modèles : la Régression Logistique et un Arbre de Décision (profondeur max = 3).</p>
+                            
+                            <table class="data-table mt-3" id="q4-comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>Métrique (Test)</th>
+                                        <th>Régression Logistique</th>
+                                        <th>Arbre de Décision</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Rempli par JS -->
+                                </tbody>
+                            </table>
+
+                            <div class="grid-2col mt-4">
+                                <div class="cm-box">
+                                    <h4>Matrice de Confusion (Régression Logistique)</h4>
+                                    <div class="confusion-matrix" id="q4-cm-lr">
+                                        <!-- Matrice LR -->
+                                    </div>
+                                </div>
+                                <div class="cm-box">
+                                    <h4>Matrice de Confusion (Arbre de Décision)</h4>
+                                    <div class="confusion-matrix" id="q4-cm-dt">
+                                        <!-- Matrice DT -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card glass">
+                        <div class="card-header">
+                            <i class="fa-solid fa-wand-magic-sparkles card-icon"></i>
+                            <h3>Simulateur de Qualification</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-4">Saisissez les caractéristiques d'un nouveau freelance pour voir sa qualification automatique Premium / Standard par nos deux modèles :</p>
+                            
+                            <form id="simulator-form" class="sim-form">
+                                <div class="form-group">
+                                    <label for="input-perf">Performance du Freelance (0 à 100) :</label>
+                                    <input type="number" id="input-perf" min="0" max="100" value="75" required class="form-control">
+                                    <input type="range" id="range-perf" min="0" max="100" value="75" class="range-slider">
+                                </div>
+                                <div class="form-group">
+                                    <label for="input-tjm">TJM (Tarif Journalier Moyen) en FCFA :</label>
+                                    <input type="number" id="input-tjm" min="50000" max="450000" step="5000" value="200000" required class="form-control">
+                                    <input type="range" id="range-tjm" min="50000" max="450000" step="5000" value="200000" class="range-slider">
+                                </div>
+                                <button type="submit" class="btn-primary btn-block"><i class="fa-solid fa-play"></i> Lancer la prédiction</button>
+                            </form>
+
+                            <div id="sim-result-card" class="sim-result-card hidden">
+                                <h4>Résultats de la simulation :</h4>
+                                <div class="result-grids">
+                                    <div class="result-col">
+                                        <h5>Régression Logistique</h5>
+                                        <div class="badge-result" id="result-lr-class">Premium</div>
+                                        <p>Confiance : <span id="result-lr-prob">85.4%</span></p>
+                                    </div>
+                                    <div class="result-col">
+                                        <h5>Arbre de Décision</h5>
+                                        <div class="badge-result" id="result-dt-class">Standard</div>
+                                        <p>Probabilité : <span id="result-dt-prob">91.2%</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card glass mt-4">
+                    <div class="card-header">
+                        <i class="fa-solid fa-triangle-exclamation card-icon"></i>
+                        <h3>Analyse des Risques Commerciaux et Décision</h3>
+                    </div>
+                    <div class="card-body text-block" id="q4-risks-text">
+                        <!-- Texte rédigé -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <!-- Script Modules -->
+    <script src="js/api.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
